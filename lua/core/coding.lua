@@ -1,5 +1,5 @@
 return {
-  { 'echasnovski/mini.ai', opts = {} },
+  { 'nvim-mini/mini.ai', opts = {} },
 
   {
     'Wansmer/treesj',
@@ -9,9 +9,9 @@ return {
   },
 
   -- todo: use `vim.b.minicursorword_disable` to disable in tree
-  { 'echasnovski/mini.cursorword', version = false, opts = { delay = 400 } },
+  { 'nvim-mini/mini.cursorword', version = false, opts = { delay = 400 } },
   {
-    'echasnovski/mini.surround',
+    'nvim-mini/mini.surround',
     version = '*',
     keys = {
       { 'sa', desc = 'Add surrounding', mode = { 'n', 'v' } },
@@ -35,7 +35,7 @@ return {
     },
   },
   {
-    'echasnovski/mini.bufremove',
+    'nvim-mini/mini.bufremove',
     keys = {
       {
         '<leader>bd',

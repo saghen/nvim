@@ -1,6 +1,11 @@
 return {
   {
     enabled = false,
+    'hrsh7th/vim-vsnip',
+    init = function() vim.g.vsnip_snippet_dir = vim.fn.stdpath('config') .. '/snippets' end,
+  },
+  {
+    enabled = false,
     'echasnovski/mini.snippets',
     config = function()
       local gen_loader = require('mini.snippets').gen_loader

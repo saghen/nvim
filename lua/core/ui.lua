@@ -1,4 +1,7 @@
 return {
+  -- prevent neovim from scrolling past the bottom of the buffer
+  { 'saghen/neverflow.nvim' },
+
   -- forces plugins to use CursorLineSign
   { 'jake-stewart/force-cul.nvim', opts = {} },
 

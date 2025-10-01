@@ -1,7 +1,6 @@
 require('config.autocmds.close-with-q')
 -- require('config.autocmds.last-buf-split')
 require('config.autocmds.modeline')
-require('config.autocmds.no-overscroll')
 require('config.autocmds.other')
 require('config.autocmds.protected-buf')
 require('config.autocmds.winhighlight')

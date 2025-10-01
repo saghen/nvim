@@ -149,18 +149,43 @@ return {
   },
 
   -- smarter file opening
+  -- {
+  --   'danielfalk/smart-open.nvim',
+  --   branch = '0.3.x',
+  --   dependencies = { 'kkharji/sqlite.lua' },
+  --   keys = {
+  --     {
+  --       '<CR>',
+  --       function() require('telescope').extensions.smart_open.smart_open({ cwd_only = true }) end,
+  --       desc = 'Files',
+  --     },
+  --   },
+  --   config = function() require('telescope').load_extension('smart_open') end,
+  -- },
   {
-    'danielfalk/smart-open.nvim',
-    branch = '0.3.x',
-    dependencies = { 'kkharji/sqlite.lua' },
+    'dmtrKovalenko/fff.nvim',
+    build = function() require('fff.download').download_or_build_binary() end,
     keys = {
       {
         '<CR>',
-        function() require('telescope').extensions.smart_open.smart_open({ cwd_only = true }) end,
-        desc = 'Files',
+        function() require('fff').find_files() end,
+        desc = 'FFFind files',
       },
     },
-    config = function() require('telescope').load_extension('smart_open') end,
+    opts = {
+      layout = {
+        width = 0.3,
+        height = 0.6,
+        prompt_position = 'top',
+        preview_position = 'top',
+      },
+      prompt = ' ',
+      hl = {
+        active_file = 'CursorLine',
+        border = 'TelescopePreviewBorder',
+        title = 'TelescopePreviewTitle',
+      },
+    },
   },
 
   -- symbol picker

@@ -4,6 +4,8 @@ local map = require('tuque.utils').map
 -- which is what i usually meant
 map('n', 'q:', ':q<cr>', { desc = 'Quit' })
 
+map('i', '<C-backspace>', '<C-w>', { desc = 'Delete word' })
+
 map('n', '-', '``', { desc = 'Jump to last edit location' })
 map('n', "'", '`') -- To make room for ` as terminal key
 

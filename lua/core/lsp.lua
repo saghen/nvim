@@ -137,21 +137,6 @@ return {
 
   -- Code actions
   {
-    'rachartier/tiny-code-action.nvim',
-    dependencies = {
-      { 'nvim-lua/plenary.nvim' },
-      { 'nvim-telescope/telescope.nvim' },
-    },
-    keys = {
-      {
-        '<leader>cA',
-        function() require('tiny-code-action').code_action() end,
-        desc = 'Code Action',
-      },
-    },
-    opts = {},
-  },
-  {
     'Chaitanyabsprip/fastaction.nvim',
     keys = {
       {

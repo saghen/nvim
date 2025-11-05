@@ -17,6 +17,7 @@ local function list_projects()
     '~/code/personal/keyboards/*',
     '~/code/superfishial/*',
     '~/code/bind/*',
+    '~/notes',
   }
   local project_folders = {}
   for _, folder in ipairs(top_level_folders) do

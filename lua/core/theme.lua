@@ -17,6 +17,10 @@ return {
     config = function(_, opts)
       require('onedark').setup(opts)
       require('onedark').load()
+
+      vim.api.nvim_set_hl(0, 'BlinkIndentOrange', { link = 'RainbowOrange' })
+      vim.api.nvim_set_hl(0, 'BlinkIndentViolet', { link = 'RainbowPurple' })
+      vim.api.nvim_set_hl(0, 'BlinkIndentBlue', { link = 'RainbowBlue' })
     end,
     opts = {
       transparent = false,
@@ -150,6 +154,8 @@ return {
         TelescopeResultsTitle = { fg = '$blue' },
 
         TerminalWinbarFocus = { bg = '$blue', fg = '$black' },
+
+        ObsidianRefText = { bg = '$blue' },
       },
     },
   },

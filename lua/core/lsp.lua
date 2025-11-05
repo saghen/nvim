@@ -154,23 +154,10 @@ return {
   {
     'saecki/live-rename.nvim',
     keys = {
-      {
-        'cr',
-        function() require('live-rename').rename() end,
-        desc = 'Rename',
-      },
-      {
-        'cR',
-        function() require('live-rename').rename({ text = '', insert = true }) end,
-        desc = 'Rename (replace)',
-      },
+      { 'cr', function() require('live-rename').rename() end, desc = 'Rename' },
+      { 'cR', function() require('live-rename').rename({ text = '', insert = true }) end, desc = 'Rename (replace)' },
     },
-    opts = {
-      hl = {
-        current = 'LiveRenameCurrent',
-        others = 'LiveRenameOther',
-      },
-    },
+    opts = { hl = { current = 'LiveRenameCurrent', others = 'LiveRenameOther' } },
   },
   {
     'navarasu/onedark.nvim',

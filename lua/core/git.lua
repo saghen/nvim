@@ -89,12 +89,8 @@ return {
       -- graph like https://github.com/rbong/vim-flog
       graph_style = 'unicode',
 
-      commit_editor = {
-        kind = 'split',
-      },
-      popup = {
-        kind = 'split',
-      },
+      commit_editor = { kind = 'split' },
+      popup = { kind = 'split' },
       mappings = {
         commit_editor = {
           ['<enter>'] = 'Submit',

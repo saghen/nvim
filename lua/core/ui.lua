@@ -88,6 +88,7 @@ return {
     'b0o/incline.nvim',
     event = 'VeryLazy',
     opts = {
+      hide = { cursorline = true },
       ignore = { buftypes = function(_, buftype) return buftype ~= '' and buftype ~= 'terminal' end },
       window = {
         padding = 0,

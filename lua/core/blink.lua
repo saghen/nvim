@@ -12,28 +12,7 @@ return {
     },
   },
 
-  {
-    'saghen/blink.indent',
-    dev = true,
-    --- @module 'blink.indent'
-    --- @type blink.indent.Config
-    opts = {
-      scope = {
-        highlights = {
-          'RainbowOrange',
-          'RainbowPurple',
-          'RainbowBlue',
-        },
-        underline = {
-          highlights = {
-            'RainbowOrangeUnderline',
-            'RainbowPurpleUnderline',
-            'RainbowBlueUnderline',
-          },
-        },
-      },
-    },
-  },
+  { 'saghen/blink.indent', dev = true },
 
   {
     'saghen/blink.pairs',
@@ -45,9 +24,11 @@ return {
 
   {
     'saghen/blink.cmp',
-    version = vim.fn.getenv('BLINK_VERSION') or false,
-    dev = vim.fn.getenv('BLINK_VERSION') == vim.NIL,
-    -- build = 'cargo build --release',
+    dependencies = 'yus-works/csc.nvim',
+    dev = true,
+    -- version = vim.fn.getenv('BLINK_VERSION') or false,
+    -- dev = vim.fn.getenv('BLINK_VERSION') == vim.NIL,
+    build = 'cargo build --release',
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
     opts = {
@@ -66,7 +47,7 @@ return {
           auto_brackets = { semantic_token_resolution = { blocked_filetypes = { 'typescriptreact', 'typescript' } } },
         },
       },
-      sources = { default = { 'lsp', 'buffer', 'path' } },
+      sources = { default = { 'lsp', 'path' } },
       fuzzy = {
         implementation = 'rust',
         prebuilt_binaries = { ignore_version_mismatch = true },

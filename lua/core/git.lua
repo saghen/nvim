@@ -1,19 +1,32 @@
 return {
+  -- work with conflicts
+  {
+    'StackInTheWild/headhunter.nvim',
+    keys = {
+      { ']g', '<cmd>HeadhunterNext<cr>', desc = 'Go to next Conflict' },
+      { '[g', '<cmd>HeadhunterPrevious<cr>', desc = 'Go to previous Conflict' },
+      { '<leader>gh', '<cmd>HeadhunterTakeHead<cr>', desc = 'Take changes from HEAD' },
+      { '<leader>go', '<cmd>HeadhunterTakeOrigin<cr>', desc = 'Take changes from origin' },
+      { '<leader>gb', '<cmd>HeadhunterTakeBoth<cr>', desc = 'Take both changes' },
+    },
+    opts = { register_keymaps = false },
+  },
+
   -- convert git branches/files to remote URLs
   {
     'linrongbin16/gitlinker.nvim',
     cmd = 'GitLink',
     keys = {
       { '<leader>gyf', '<cmd>GitLink<cr>', mode = { 'n', 'v' }, desc = 'Copy file url' },
-      { '<leader>gof', '<cmd>GitLink!', mode = { 'n', 'v' }, desc = 'Open file in browser' },
+      { '<leader>gxf', '<cmd>GitLink!', mode = { 'n', 'v' }, desc = 'Open file in browser' },
 
-      { '<leader>gob', '<cmd>GitLink current_branch<cr>', mode = { 'n', 'v' }, desc = 'Open branch in browser' },
+      { '<leader>gxb', '<cmd>GitLink current_branch<cr>', mode = { 'n', 'v' }, desc = 'Open branch in browser' },
       { '<leader>gyb', '<cmd>GitLink current_branch<cr>', mode = { 'n', 'v' }, desc = 'Copy branch url' },
 
-      { '<leader>gor', '<cmd>GitLink! default_branch<cr>', mode = { 'n', 'v' }, desc = 'Open repo in browser' },
+      { '<leader>gxr', '<cmd>GitLink! default_branch<cr>', mode = { 'n', 'v' }, desc = 'Open repo in browser' },
       { '<leader>gyr', '<cmd>GitLink default_branch<cr>', mode = { 'n', 'v' }, desc = 'Copy repo url' },
 
-      { '<leader>goB', '<cmd>GitLink! blame<cr>', mode = { 'n', 'v' }, desc = 'Open blame in browser' },
+      { '<leader>gxB', '<cmd>GitLink! blame<cr>', mode = { 'n', 'v' }, desc = 'Open blame in browser' },
     },
     opts = {},
   },

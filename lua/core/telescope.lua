@@ -149,73 +149,17 @@ return {
   },
 
   -- smarter file opening
-  -- {
-  --   'danielfalk/smart-open.nvim',
-  --   branch = '0.3.x',
-  --   dependencies = { 'kkharji/sqlite.lua' },
-  --   keys = {
-  --     {
-  --       '<CR>',
-  --       function() require('telescope').extensions.smart_open.smart_open({ cwd_only = true }) end,
-  --       desc = 'Files',
-  --     },
-  --   },
-  --   config = function() require('telescope').load_extension('smart_open') end,
-  -- },
   {
-    'dmtrKovalenko/fff.nvim',
-    build = function() require('fff.download').download_or_build_binary() end,
+    'danielfalk/smart-open.nvim',
+    branch = '0.3.x',
+    dependencies = { 'kkharji/sqlite.lua' },
     keys = {
       {
         '<CR>',
-        function() require('fff').find_files() end,
-        desc = 'FFFind files',
+        function() require('telescope').extensions.smart_open.smart_open({ cwd_only = true }) end,
+        desc = 'Files',
       },
     },
-    opts = {
-      layout = {
-        width = 0.3,
-        height = 0.6,
-        prompt_position = 'top',
-        preview_position = 'top',
-      },
-      prompt = ' ',
-      hl = {
-        active_file = 'CursorLine',
-        border = 'TelescopePreviewBorder',
-        title = 'TelescopePreviewTitle',
-      },
-    },
-  },
-
-  -- symbol picker
-  {
-    'bassamsdata/namu.nvim',
-    keys = {
-      {
-        '<leader>ss',
-        function() require('namu.namu_symbols').show() end,
-        desc = 'Symbols (Document)',
-      },
-    },
-    opts = {
-      namu_symbols = {
-        enable = true,
-        options = {
-          display = { mode = 'icon' },
-          -- window = { border = { ' ' } },
-          AllowKinds = {
-            rust = {
-              'Function',
-              'Struct',
-              'Enum',
-              'Trait',
-              'Module',
-            },
-          },
-        },
-      },
-      ui_select = { enable = true },
-    },
+    config = function() require('telescope').load_extension('smart_open') end,
   },
 }

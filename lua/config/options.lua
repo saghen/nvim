@@ -55,9 +55,11 @@ end
 
 -- folds
 vim.o.foldcolumn = '0'
-vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
+vim.o.foldmethod = 'expr'
+vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 
 -- don't show the neovim dashboard
 opt.shortmess:append('I')

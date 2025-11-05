@@ -16,6 +16,7 @@ opt.confirm = true -- Confirm to save changes before exiting modified buffer
 opt.cursorline = true -- Enable highlighting of the current line
 opt.expandtab = true -- Use spaces instead of tabs
 
+opt.autoread = true -- Automatically read file on external change
 opt.list = true -- Show some invisible characters (tabs...
 opt.number = true -- Print line number
 opt.pumblend = 0 -- Popup blend

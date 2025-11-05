@@ -1,16 +1,5 @@
 local autocmd = vim.api.nvim_create_autocmd
 
--- Check if we need to reload the file when it changed
-autocmd({ 'FocusGained', 'TermClose', 'TermLeave' }, {
-  callback = function()
-    -- Check if file still exists
-    if vim.fn.filereadable(vim.fn.expand('%')) == 0 then return end
-
-    -- Check if file has changed
-    vim.cmd('checktime')
-  end,
-})
-
 -- Highlight on yank
 autocmd('TextYankPost', {
   callback = function() vim.highlight.on_yank() end,

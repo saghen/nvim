@@ -154,37 +154,6 @@ return {
     },
   },
 
-  -- partition UI elements
-  {
-    enabled = false,
-    'folke/edgy.nvim',
-    event = 'VeryLazy',
-    opts = {
-      animate = { enabled = false },
-      icons = {
-        closed = '',
-        open = '',
-      },
-      wo = { winbar = false },
-      options = {
-        left = { size = 40 },
-        right = { size = 80 },
-      },
-      bottom = {
-        'trouble',
-        { ft = 'qf', title = 'QuickFix' },
-      },
-      left = { { ft = 'blink-tree' } },
-      right = {
-        {
-          ft = 'toggleterm',
-          -- exclude floating windows
-          filter = function(_, win) return vim.api.nvim_win_get_config(win).relative == '' end,
-        },
-      },
-    },
-  },
-
   -- LSP notifications
   {
     'j-hui/fidget.nvim',

@@ -1,9 +1,6 @@
 return {
   -- prevent neovim from scrolling past the bottom of the buffer
-  { 'saghen/filler-begone.nvim' },
-
-  -- forces plugins to use CursorLineSign
-  { 'jake-stewart/force-cul.nvim', opts = {} },
+  'saghen/filler-begone.nvim',
 
   -- shows available keymaps as you type
   {
@@ -158,6 +155,7 @@ return {
   -- LSP notifications
   {
     'j-hui/fidget.nvim',
+    enabled = os.getenv('NVIM_DEV') == nil,
     event = 'VeryLazy',
     opts = {
       notification = { window = { normal_hl = 'Normal' } },

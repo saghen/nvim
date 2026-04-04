@@ -122,20 +122,11 @@ return {
         agents = {
           {
             provider = 'openrouter',
-            name = 'Claude 4.5 Sonnet',
+            name = 'Claude 4.6 Opus',
             chat = true,
             command = true,
-            model = 'anthropic/claude-sonnet-4.5',
+            model = 'anthropic/claude-opus-4.6',
             system_prompt = '',
-          },
-          {
-            provider = 'openrouter',
-            name = 'Claude 4 Opus',
-            chat = true,
-            command = true,
-            model = 'anthropic/claude-opus-4',
-            system_prompt = '',
-            disable = true,
           },
 
           -- Disable defaults

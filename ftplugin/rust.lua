@@ -1,3 +1,5 @@
+vim.treesitter.start()
+
 vim.g.rustaceanvim = {
   server = {
     default_settings = {

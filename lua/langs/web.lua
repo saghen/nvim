@@ -1,5 +1,4 @@
 vim.lsp.enable('vtsls')
-vim.lsp.enable('cssls')
 
 return {
   -- auto pairs for JSX

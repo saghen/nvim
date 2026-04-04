@@ -1,1 +1,2 @@
-vim.lsp.enable('basedpyright')
+vim.treesitter.start()
+vim.lsp.enable('ty')

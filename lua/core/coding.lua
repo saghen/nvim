@@ -62,24 +62,4 @@ return {
       },
     },
   },
-
-  {
-    'xzbdmw/clasp.nvim',
-    keys = {
-      -- Equivalent of h and l but on the left split keyboard with colemak-dh
-      {
-        '<C-t>',
-        function() require('clasp').wrap('next') end,
-        mode = { 'i', 'n' },
-        desc = 'Wrap next treesitter node with paranthesis',
-      },
-      {
-        '<C-a>',
-        function() require('clasp').wrap('prev') end,
-        mode = { 'i', 'n' },
-        desc = 'Wrap previous treesitter node with paranthesis',
-      },
-    },
-    opts = {},
-  },
 }

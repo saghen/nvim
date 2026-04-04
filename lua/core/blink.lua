@@ -24,10 +24,7 @@ return {
 
   {
     'saghen/blink.cmp',
-    dependencies = 'yus-works/csc.nvim',
     dev = true,
-    -- version = vim.fn.getenv('BLINK_VERSION') or false,
-    -- dev = vim.fn.getenv('BLINK_VERSION') == vim.NIL,
     build = 'cargo build --release',
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
@@ -58,10 +55,11 @@ return {
           preset = 'inherit',
           ['<Tab>'] = { 'show', 'accept', 'fallback' },
         },
-        completion = { menu = { auto_show = true }, ghost_text = { enabled = false } },
+        completion = {
+          menu = { auto_show = true },
+          ghost_text = { enabled = false },
+        },
       },
-
-      -- snippets = { preset = 'luasnip' },
 
       signature = { enabled = true, window = { show_documentation = false } },
     },

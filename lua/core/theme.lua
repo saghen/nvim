@@ -21,6 +21,9 @@ return {
       vim.api.nvim_set_hl(0, 'BlinkIndentOrange', { link = 'RainbowOrange' })
       vim.api.nvim_set_hl(0, 'BlinkIndentViolet', { link = 'RainbowPurple' })
       vim.api.nvim_set_hl(0, 'BlinkIndentBlue', { link = 'RainbowBlue' })
+      vim.api.nvim_set_hl(0, 'BlinkPairsOrange', { link = 'RainbowOrange' })
+      vim.api.nvim_set_hl(0, 'BlinkPairsPurple', { link = 'RainbowPurple' })
+      vim.api.nvim_set_hl(0, 'BlinkPairsBlue', { link = 'RainbowBlue' })
     end,
     opts = {
       transparent = false,
@@ -88,10 +91,6 @@ return {
         RainbowPurpleUnderline = { sp = '$purple', fmt = 'underline' },
         RainbowBlueUnderline = { sp = '$blue', fmt = 'underline' },
 
-        BlinkPairsOrange = { fg = '$orange' },
-        BlinkPairsPurple = { fg = '$purple' },
-        BlinkPairsBlue = { fg = '$blue' },
-        BlinkPairsUnmatched = { fg = '$red' },
         MatchParen = { fg = '$yellow', bg = 'transparent' },
 
         DashboardHeader = { fg = '$blue' },
@@ -104,7 +103,7 @@ return {
         BlinkCmpGhostText = { fg = '$grey' },
         BlinkCmpMenu = { bg = '$bg1' },
         BlinkCmpMenuSelection = { bg = '$bg3' },
-        BlinkCmpLabelMatch = { fmt = 'bold', fg = '$fg' },
+        BlinkCmpLabelMatch = { fmt = 'bold', fg = 'transparent' },
         BlinkCmpLabelDetail = { fg = '$light_grey' },
         BlinkCmpLabelDescription = { fg = '$light_grey' },
         BlinkCmpDoc = { bg = '$bg_d' },
@@ -125,6 +124,7 @@ return {
         BlinkTreeFlagCopy = { fg = '$blue', fmt = 'italic' },
 
         BlinkIndent = { fg = '$bg1' },
+        BlinkPairsUnmatched = { fg = '$red' },
 
         CursorLine = { bg = '$bg1' },
         CursorLineNr = { bg = '$bg1' },
@@ -154,8 +154,6 @@ return {
         TelescopeResultsTitle = { fg = '$blue' },
 
         TerminalWinbarFocus = { bg = '$blue', fg = '$black' },
-
-        ObsidianRefText = { bg = '$blue' },
       },
     },
   },

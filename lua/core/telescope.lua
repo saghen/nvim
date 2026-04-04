@@ -1,7 +1,7 @@
 return {
   {
     'nvim-telescope/telescope.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim', 'nvim-telescope/telescope-fzy-native.nvim' },
+    dependencies = { 'nvim-lua/plenary.nvim' },
     keys = {
       {
         '<leader>/',
@@ -124,27 +124,6 @@ return {
           },
         },
       }
-    end,
-  },
-
-  -- smarter fuzzy search
-  {
-    'nvim-telescope/telescope-fzy-native.nvim',
-    lazy = true,
-    dependencies = {
-      {
-        'romgrk/fzy-lua-native',
-        build = {
-          'make',
-          -- otherwise lazy.nvim will complain on checkout
-          -- https://github.com/romgrk/fzy-lua-native/issues/23
-          'git update-index --assume-unchanged static/libfzy-*.so',
-        },
-      },
-      'nvim-telescope/telescope.nvim',
-    },
-    config = function()
-      vim.schedule(function() require('telescope').load_extension('fzy_native') end)
     end,
   },
 

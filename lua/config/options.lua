@@ -1,6 +1,5 @@
--- Options are automatically loaded before lazy.nvim startup
--- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
--- Add any additional options here
+-- new ui!
+-- require('vim._core.ui2').enable({ msg = { target = 'msg' } })
 
 local opt = vim.opt
 local g = vim.g
@@ -11,7 +10,7 @@ g.maplocalleader = '-'
 opt.completeopt = 'menu,menuone,preview'
 opt.clipboard = ''
 
-opt.conceallevel = 2 -- Hide * markup for bold and italic
+opt.conceallevel = 0 -- Hide * markup for bold and italic
 opt.confirm = true -- Confirm to save changes before exiting modified buffer
 opt.cursorline = true -- Enable highlighting of the current line
 opt.expandtab = true -- Use spaces instead of tabs
@@ -66,7 +65,7 @@ vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 opt.shortmess:append('I')
 
 -- statusline
-opt.cmdheight = 0
+opt.cmdheight = 1
 opt.laststatus = 0
 
 -- Default splitting will cause your main splits to jump when opening an edgebar.

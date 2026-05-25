@@ -4,6 +4,19 @@ return {
   branch = 'main',
   config = function()
     local ts = require('nvim-treesitter')
-    ts.install({ 'markdown', 'markdown_inline', 'html', 'json', 'nix', 'python', 'rust', 'terraform', 'toml', 'yaml' })
+    ts.install({
+      'markdown',
+      'markdown_inline',
+      'html',
+      'json',
+      'nix',
+      'python',
+      'rust',
+      'typescript',
+      'javascript',
+      'terraform',
+      'toml',
+      'yaml',
+    })
   end,
 }

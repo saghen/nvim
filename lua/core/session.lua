@@ -10,13 +10,12 @@ vim.api.nvim_create_autocmd({ 'DirChanged' }, {
 
 local function list_projects()
   local top_level_folders = {
-    '~/code/liqwid/*',
+    '~/code/gamedev/*',
+    '~/code/linux/*',
     '~/code/nvim/*',
-    '~/code/oz/*',
     '~/code/personal/*',
     '~/code/personal/keyboards/*',
     '~/code/superfishial/*',
-    '~/code/bind/*',
     '~/notes',
   }
   local project_folders = {}

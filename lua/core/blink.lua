@@ -1,19 +1,27 @@
 return {
   {
-    'saghen/blink.pick',
+    'saghen/blink.ai',
     dev = true,
-    lazy = false,
-    keys = {
-      {
-        '<leader>bp',
-        function() require('blink.pick').open_window() end,
-        desc = 'Pick',
+    --- @module 'blink.ai'
+    --- @type blink.ai.Config
+    opts = {
+      adapters = {
+        anthropic = {
+          api_key = function() return vim.g.ANTHROPIC_API_KEY end,
+        },
       },
     },
   },
 
+  {
+    'saghen/blink.lib',
+    keys = {
+      { '<leader>bf', function() require('blink.lib.bench').run_file() end, desc = 'Run benchmarks (current file)' },
+      { '<leader>br', function() require('blink.lib.bench').run_files() end, desc = 'Run benchmarks' },
+    },
+    dev = true,
+  },
   { 'saghen/blink.indent', dev = true },
-
   {
     'saghen/blink.pairs',
     dev = true,
@@ -25,7 +33,7 @@ return {
   {
     'saghen/blink.cmp',
     dev = true,
-    build = 'cargo build --release',
+    build = function() require('blink.cmp').build() end,
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
     opts = {
@@ -34,21 +42,13 @@ return {
         ['<C-g>'] = { 'accept' },
         ['<C-d>'] = { 'select_next' },
         ['<C-c>'] = { 'select_prev' },
+        ['<C-n>'] = { 'select_next', 'show_and_insert' },
       },
       appearance = {
         nerd_font_variant = 'normal',
         use_nvim_cmp_as_default = true,
       },
-      completion = {
-        accept = {
-          auto_brackets = { semantic_token_resolution = { blocked_filetypes = { 'typescriptreact', 'typescript' } } },
-        },
-      },
-      sources = { default = { 'lsp', 'path' } },
-      fuzzy = {
-        implementation = 'rust',
-        prebuilt_binaries = { ignore_version_mismatch = true },
-      },
+      sources = { default = { 'lsp', 'path', 'buffer' } },
 
       cmdline = {
         keymap = {

@@ -63,8 +63,6 @@ return {
         Yellow = { fg = '$yellow' },
 
         Primary = { fg = '$blue' },
-        -- fixme: breaks copilot and lines with LSP hints
-        -- Comment = { fg = '$blue' },
         ['@comment'] = { fg = '$blue' },
         ['@lsp.type.comment'] = { fg = '$blue' },
 

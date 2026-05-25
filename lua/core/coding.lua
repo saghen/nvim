@@ -1,41 +1,7 @@
 return {
-  { 'nvim-mini/mini.ai', opts = {} },
-
   {
-    'Wansmer/treesj',
-    keys = { { 'gm', '<cmd>TSJToggle<cr>', desc = 'Toggle Block' } },
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
-    opts = { use_default_keymap = false, max_join_length = 1000 },
-  },
-
-  -- todo: use `vim.b.minicursorword_disable` to disable in tree
-  { 'nvim-mini/mini.cursorword', version = false, opts = { delay = 400 } },
-  {
-    'nvim-mini/mini.surround',
-    version = '*',
-    keys = {
-      { 'sa', desc = 'Add surrounding', mode = { 'n', 'v' } },
-      { 'sd', desc = 'Delete surrounding' },
-      { 'sf', desc = 'Find right surrounding' },
-      { 'sF', desc = 'Find left surrounding' },
-      { 'sh', desc = 'Highlight surrounding' },
-      { 'sr', desc = 'Replace surrounding' },
-    },
-    opts = {
-      -- Number of lines within which surrounding is searched
-      n_lines = 50,
-      mappings = {
-        add = 'sa', -- Add surrounding in Normal and Visual modes
-        delete = 'sd', -- Delete surrounding
-        find = 'sf', -- Find surrounding (to the right)
-        find_left = 'sF', -- Find surrounding (to the left)
-        highlight = 'sh', -- Highlight surrounding
-        replace = 'sr', -- Replace surrounding
-      },
-    },
-  },
-  {
-    'nvim-mini/mini.bufremove',
+    'nvim-mini/mini.nvim',
+    lazy = false,
     keys = {
       {
         '<leader>bd',
@@ -60,6 +26,23 @@ return {
         function() require('mini.bufremove').delete(0, true) end,
         desc = 'Delete Buffer (Force)',
       },
+      { '<leader>tt', function() require('mini.test').run() end, desc = 'Test File' },
+      { '<leader>tf', function() require('mini.test').run_file() end, desc = 'Test File' },
+      { '<leader>tl', function() require('mini.test').run_at_location() end, desc = 'Test Suite' },
     },
+    config = function()
+      require('mini.ai').setup()
+      require('mini.cursorword').setup({ delay = 400 })
+      require('mini.surround').setup({ n_lines = 50 }) -- number of lines to search
+      local test = require('mini.test')
+      test.setup()
+    end,
+  },
+
+  {
+    'Wansmer/treesj',
+    keys = { { 'gm', '<cmd>TSJToggle<cr>', desc = 'Toggle Block' } },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    opts = { use_default_keymap = false, max_join_length = 1000 },
   },
 }

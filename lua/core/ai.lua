@@ -14,8 +14,55 @@ return {
     },
   },
 
+  {
+    'theprimeagen/99',
+    keys = {
+      { '<leader>9v', function() require('99').visual() end, mode = 'v', desc = 'AI Agent (Visual)' },
+      { '<leader>9x', function() require('99').stop_all_requests() end, desc = 'Cancel all AI Agents' },
+      { '<leader>9s', function() require('99').search() end, desc = 'AI Agent (Search)' },
+    },
+    config = function()
+      local _99 = require('99')
+      _99.setup({
+        provider = _99.Providers.ClaudeCodeProvider,
+        model = 'opus',
+      })
+    end,
+  },
+
+  {
+    enabled = false,
+    'olimorris/codecompanion.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim', 'nvim-treesitter/nvim-treesitter' },
+    command = { 'CodeCompanion', 'CodeCompanionActions', 'CodeCompanionChat', 'CodeCompanionCLI', 'CodeCompanionCmd' },
+    keys = {
+      -- { '<C-a>', '<cmd>CodeCompanionActions<cr>', mode = { 'n', 'v' }, desc = 'Add to AI Chat' },
+      { 'ga', '<cmd>CodeCompanionChat Add<cr>', mode = 'v', desc = 'Add to AI Chat' },
+      { '<leader>ac', '<cmd>CodeCompanionChat<cr>', mode = 'n', desc = 'New Chat' },
+    },
+    opts = {
+      adapters = {
+        http = {
+          anthropic = function()
+            return require('codecompanion.adapters').extend(
+              'anthropic',
+              { env = { api_key = vim.g.ANTHROPIC_API_KEY } }
+            )
+          end,
+        },
+      },
+      interactions = {
+        chat = { adapter = 'anthropic', model = 'claude-opus-4-7' },
+        inline = { adapter = 'anthropic', model = 'claude-opus-4-7' },
+      },
+      display = { chat = { intro_message = '', window = { layout = 'buffer' } } },
+    },
+    init = function() vim.cmd([[cab cc CodeCompanion]]) end,
+  },
+
   -- chat with code
   {
+    -- enabled = false,
     'robitx/gp.nvim',
     keys = {
       -- Chat commands
@@ -118,14 +165,15 @@ return {
             endpoint = 'https://openrouter.ai/api/v1/chat/completions',
             secret = vim.g.OPENROUTER_API_KEY,
           },
+          anthropic = { secret = vim.g.ANTHROPIC_API_KEY },
         },
         agents = {
           {
             provider = 'openrouter',
-            name = 'Claude 4.6 Opus',
+            name = 'Claude 4.7 Opus',
             chat = true,
-            command = true,
-            model = 'anthropic/claude-opus-4.6',
+            command = false,
+            model = 'anthropic/claude-opus-4.7',
             system_prompt = '',
           },
 

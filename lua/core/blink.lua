@@ -1,5 +1,6 @@
 return {
   {
+    enabled = false,
     'saghen/blink.ai',
     dev = true,
     --- @module 'blink.ai'

@@ -170,10 +170,10 @@ return {
         agents = {
           {
             provider = 'openrouter',
-            name = 'Claude 4.7 Opus',
+            name = 'Claude 4.8 Opus',
             chat = true,
             command = false,
-            model = 'anthropic/claude-opus-4.7',
+            model = 'anthropic/claude-opus-4.8',
             system_prompt = '',
           },
 

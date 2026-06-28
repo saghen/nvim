@@ -49,13 +49,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
+local disable_autoformat_filetypes = {}
+
 -- Format on save
 vim.api.nvim_create_autocmd('BufWritePre', {
   desc = 'Format on save',
   pattern = '*',
   callback = function(args)
     if not vim.api.nvim_buf_is_valid(args.buf) or vim.bo[args.buf].buftype ~= '' then return end
-    if vim.g.disable_autoformat then return end
+    if disable_autoformat_filetypes[vim.bo[args.buf].filetype] then return end
     vim.lsp.buf.format({
       filter = function(client)
         return vim.tbl_contains({ 'efm', 'terraformls', 'rust-analyzer', 'nil_ls' }, client.name)
@@ -74,9 +76,7 @@ return {
       {
         '<leader>cf',
         function()
-          vim.lsp.buf.format({
-            filter = function(client) return client.name == 'efm' end,
-          })
+          vim.lsp.buf.format({ filter = function(client) return client.name == 'efm' end })
         end,
         desc = 'Format',
         mode = { 'n', 'v' },
@@ -84,11 +84,8 @@ return {
       {
         '<leader>uf',
         function()
-          if vim.g.disable_autoformat == nil then
-            vim.g.disable_autoformat = true
-          else
-            vim.g.disable_autoformat = not vim.g.disable_autoformat
-          end
+          local filetype = vim.bo.filetype
+          disable_autoformat_filetypes[filetype] = not disable_autoformat_filetypes[filetype]
         end,
         desc = 'Toggle format on save',
       },
@@ -104,14 +101,14 @@ return {
       set_formatter('lua', 'stylua')
 
       -- stylua: ignore
-      local languages = {
+      local web_languages = {
         'javascript', 'javascriptreact', 'typescript', 'typescriptreact',
         'css', 'scss', 'less', 'html',
         'json', 'jsonc', 'yaml', 'graphql', 'handlebars', 'svelte',
       }
       local has_biome = vim.fn.filereadable(vim.fn.getcwd() .. '/biome.json')
       local web_formatter = has_biome == 1 and 'biome' or 'prettier_d'
-      for _, lang in ipairs(languages) do
+      for _, lang in ipairs(web_languages) do
         set_formatter(lang, web_formatter)
       end
 

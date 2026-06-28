@@ -22,10 +22,12 @@ return {
     },
     dev = true,
   },
-  { 'saghen/blink.indent', dev = true },
+  { 'saghen/blink.indent', dev = true, opts = { dedent_scoped_filetypes = true } },
   {
     'saghen/blink.pairs',
-    dev = true,
+    -- dev = true,
+    version = '*',
+    build = function() require('blink.pairs').download():pwait() end,
     --- @module 'blink.pairs'
     --- @type blink.pairs.Config
     opts = {},
@@ -34,7 +36,7 @@ return {
   {
     'saghen/blink.cmp',
     dev = true,
-    build = function() require('blink.cmp').build() end,
+    build = function() require('blink.cmp').build():pwait() end,
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
     opts = {

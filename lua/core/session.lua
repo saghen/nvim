@@ -15,6 +15,7 @@ local function list_projects()
     '~/code/nvim/*',
     '~/code/personal/*',
     '~/code/personal/keyboards/*',
+    '~/code/speechify/*',
     '~/code/superfishial/*',
     '~/notes',
   }

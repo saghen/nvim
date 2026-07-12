@@ -49,11 +49,40 @@ vim.api.nvim_create_autocmd('ModeChanged', {
   end,
 })
 
+-- Remove default TermClose autocmds which close the window
+local term_close_autocmds = vim.api.nvim_get_autocmds({
+  group = 'nvim.terminal',
+  event = 'TermClose',
+})
+for _, autocmd in ipairs(term_close_autocmds) do
+  pcall(vim.api.nvim_del_autocmd, autocmd.id)
+end
+
+-- Replace terminal buffer with last buffer on exit
+vim.api.nvim_create_autocmd('TermClose', {
+  callback = function(args)
+    local buffer_history = require('tuque.buffer-history')
+    local buf = args.buf
+    local win = vim.fn.bufwinid(buf)
+    if win == -1 or not vim.api.nvim_win_is_valid(win) then return end
+
+    -- Find the alternate buffer for this window
+    local alt = buffer_history.get_nth_previous_buffer(1, true) or buffer_history.get_nth_previous_buffer(1)
+    if not alt or not vim.api.nvim_buf_is_valid(alt) then alt = vim.api.nvim_create_buf(true, false) end
+    vim.api.nvim_win_set_buf(win, alt)
+
+    -- Delete terminal buffer
+    if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, { force = true }) end
+  end,
+})
+
+--- @param type tuque.TerminalType?
 --- @return tuque.Terminal[]
-function Manager.get_terms()
+function Manager.get_terms(type)
   local terms = vim.tbl_filter(function(term) return term:is_valid() end, Manager.terms)
   Manager.terms = terms
-  return terms
+  if not type then return terms end
+  return vim.tbl_filter(function(term) return term.type == type end, terms)
 end
 
 function Manager.get_term_history()
@@ -71,30 +100,30 @@ function Manager.get_current_term(win)
   end
 end
 
+--- @param type tuque.TerminalType?
 --- @param win number?
---- @return number?
-function Manager.get_current_term_idx(win)
-  local terms = Manager.get_terms()
+--- @return number?, tuque.Terminal?
+function Manager.get_current_term_idx(type, win)
+  local terms = Manager.get_terms(type)
   for idx, term in ipairs(terms) do
-    if term:is_focused(win) then return idx end
+    if term:is_focused(win) then return idx, term end
   end
 end
 
-function Manager.cycle()
-  local terms = Manager.get_terms()
-  local current_term_idx = Manager.get_current_term_idx()
+--- @param type tuque.TerminalType
+function Manager.cycle(type)
+  local terms = Manager.get_terms(type)
+  local current_term_idx = Manager.get_current_term_idx(type)
 
   -- No terminal focused
   if current_term_idx == nil then
-    -- Focus the only existing terminal
-    if #terms == 1 then
-      terms[1]:focus_existing_and_enter_insert()
     -- Focus the last terminal
-    elseif #terms > 0 then
-      Manager.focus_last()
+    -- TODO: create a new terminal if all the existing are visible
+    if #terms > 0 then
+      Manager.focus_last(type)
     -- Create a new terminal and focus it
     else
-      Manager.create()
+      Manager.create(type)
     end
   -- Terminal focused
   else
@@ -109,22 +138,24 @@ function Manager.cycle()
   end
 end
 
-function Manager.focus_last()
+--- @param type tuque.TerminalType?
+function Manager.focus_last(type)
   -- Focus the last term that isn't currently visible
   for _, term in ipairs(Manager.get_term_history()) do
-    if not term:is_visible() then return term:focus_and_enter_insert() end
+    if (not type or term.type == type) and not term:is_visible() then return term:focus() end
   end
 
   -- Focus the first term instead
-  local terms = Manager.get_terms()
-  if #terms > 0 then return terms[1]:focus_and_enter_insert() end
+  local terms = Manager.get_terms(type)
+  if #terms > 0 then return terms[1]:focus() end
 
   error('No terminals found')
 end
 
+--- @param type tuque.TerminalType?
 --- @return tuque.Terminal
-function Manager.create()
-  local term = Terminal.new()
+function Manager.create(type)
+  local term = Terminal.new(type)
   table.insert(Manager.terms, term)
   return term
 end

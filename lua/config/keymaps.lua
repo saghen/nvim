@@ -92,9 +92,26 @@ map({ 'n', 's' }, '<esc>', function()
 end, { expr = true, desc = 'Escape and clear hlsearch/snippet' })
 
 -- Terminal
-map('t', '<Esc>', [[<C-\><C-n>]], { noremap = true })
-map({ 'n', 'v' }, '`', function() require('tuque.term').cycle() end, { desc = 'Cycle terminal' })
-map({ 'n', 'i', 't', 'v' }, '<C-`>', function() require('tuque.term').create() end, { desc = 'Create terminal' })
+map('t', '<Esc>', [[<C-\><C-n>]], { desc = 'Exit terminal mode' })
+map('t', '<C-]>', '<Esc>', { desc = 'Pass <Esc> to terminal' })
+map({ 'n', 'v' }, '`', function() require('tuque.term').cycle('normal') end, { desc = 'Cycle terminal' })
+map({ 'n', 'v' }, '=', function() require('tuque.term').cycle('agent') end, { desc = 'Cycle agent terminal' })
+map({ 'n', 't', 'v' }, '<C-g>', function()
+  local term = require('tuque.term')
+  local active_term = term.get_current_term()
+  if active_term == nil then
+    return vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-g>', true, true, true), 'n', true)
+  end
+  term.cycle(active_term.type)
+end, { desc = 'Next terminal' })
+map({ 'n', 't', 'v' }, '<C-n>', function()
+  local term = require('tuque.term')
+  local active_term = term.get_current_term()
+  if active_term == nil then
+    return vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-n>', true, true, true), 'n', true)
+  end
+  term.create(active_term.type)
+end, { desc = 'Create terminal' })
 
 -- https://github.com/mhinz/vim-galre#saner-behavior-of-n-and-n
 map('n', 'n', "'Nn'[v:searchforward].'zv'", { expr = true, desc = 'Next search result' })

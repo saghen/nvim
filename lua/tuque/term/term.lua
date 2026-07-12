@@ -1,13 +1,17 @@
+--- @alias tuque.TerminalType 'normal' | 'agent'
+
 --- @class tuque.Terminal
 --- @field buf number
+--- @field type tuque.TerminalType
 local Terminal = {}
 
-function Terminal.new()
+function Terminal.new(type)
   vim.cmd('terminal')
   vim.cmd('startinsert')
 
   local self = setmetatable({}, { __index = Terminal })
   self.buf = vim.api.nvim_get_current_buf()
+  self.type = type or 'normal'
   if vim.bo[self.buf].buftype ~= 'terminal' then
     error("Created a terminal buffer but didn't find it as the current buffer after creating it")
   end
@@ -33,26 +37,6 @@ function Terminal:is_visible()
 end
 
 function Terminal:focus() vim.api.nvim_set_current_buf(self.buf) end
-
-function Terminal:focus_and_enter_insert()
-  self:focus()
-  vim.cmd('startinsert')
-end
-
-function Terminal:focus_existing_and_enter_insert()
-  -- Find the first window with this terminal and focus it
-  local wins = vim.api.nvim_tabpage_list_wins(0)
-  for _, win in ipairs(wins) do
-    if vim.api.nvim_win_get_buf(win) == self.buf then
-      vim.api.nvim_set_current_win(win)
-      vim.cmd('startinsert')
-      return
-    end
-  end
-
-  -- Not visible, so focus in the cuurrent window
-  self:focus_and_enter_insert()
-end
 
 --- Use the signcolumn as padding on the left side for when there's more than one window
 --- open in the current tab

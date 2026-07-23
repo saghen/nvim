@@ -34,8 +34,7 @@ return {
       require('mini.ai').setup()
       require('mini.cursorword').setup({ delay = 400 })
       require('mini.surround').setup({ n_lines = 50 }) -- number of lines to search
-      local test = require('mini.test')
-      test.setup()
+      require('mini.test').setup()
     end,
   },
 

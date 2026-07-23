@@ -61,18 +61,26 @@ end
 -- Replace terminal buffer with last buffer on exit
 vim.api.nvim_create_autocmd('TermClose', {
   callback = function(args)
-    local buffer_history = require('tuque.buffer-history')
     local buf = args.buf
+    if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, { force = true }) end
+
     local win = vim.fn.bufwinid(buf)
     if win == -1 or not vim.api.nvim_win_is_valid(win) then return end
 
-    -- Find the alternate buffer for this window
+    -- focus last term if it exists
+    local term = vim.tbl_filter(function(term) return term.buf == buf end, Manager.terms)[1]
+    if term ~= nil then
+      local term_history = Manager.get_term_history()
+      for _, other_term in ipairs(term_history) do
+        if term.type == other_term.type and not other_term.is_visible() then return other_term:focus() end
+      end
+    end
+
+    -- focus last buffer
+    local buffer_history = require('tuque.buffer-history')
     local alt = buffer_history.get_nth_previous_buffer(1, true) or buffer_history.get_nth_previous_buffer(1)
     if not alt or not vim.api.nvim_buf_is_valid(alt) then alt = vim.api.nvim_create_buf(true, false) end
     vim.api.nvim_win_set_buf(win, alt)
-
-    -- Delete terminal buffer
-    if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, { force = true }) end
   end,
 })
 
@@ -159,5 +167,7 @@ function Manager.create(type)
   table.insert(Manager.terms, term)
   return term
 end
+
+require('tuque.term.commands').setup(Manager)
 
 return Manager

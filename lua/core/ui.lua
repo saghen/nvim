@@ -80,17 +80,17 @@ return {
       render = function(props)
         -- Terminal rendering
         local term_manager = require('tuque.term')
-        local active_term_idx, active_term = term_manager.get_current_term_idx(nil, props.win)
+        local active_term = term_manager.get_current_term(props.win)
+        local active_term_idx = active_term and term_manager.get_current_term_idx(active_term.type, props.win)
         if active_term_idx ~= nil and active_term ~= nil then
-          local terms = term_manager.get_terms()
+          local terms = term_manager.get_terms(active_term.type)
           local term_components = {}
           for i, term in ipairs(terms) do
-            if term.type == active_term.type then
-              local highlight = i == active_term_idx and 'TerminalWinbarFocus'
-                or term:is_visible() and 'TerminalWinbarVisible'
-                or 'Normal'
-              table.insert(term_components, { ' ' .. i .. ' ', group = highlight })
-            end
+            local highlight = i == active_term_idx
+                and (term.type == 'agent' and 'TerminalAgentWinbarFocus' or 'TerminalWinbarFocus')
+              or term:is_visible() and 'TerminalWinbarVisible'
+              or 'Normal'
+            table.insert(term_components, { ' ' .. i .. ' ', group = highlight })
           end
 
           table.insert(term_components, 1, '   ')

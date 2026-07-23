@@ -152,6 +152,7 @@ return {
         TelescopeResultsTitle = { fg = '$blue' },
 
         TerminalWinbarFocus = { bg = '$blue', fg = '$black' },
+        TerminalAgentWinbarFocus = { bg = '$green', fg = '$black' },
       },
     },
   },

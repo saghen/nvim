@@ -38,12 +38,21 @@ vim.api.nvim_create_autocmd('BufEnter', {
 })
 
 --- @param n number
-local function get_nth_previous_buffer(n)
+--- @param exclude_visible? boolean
+local function get_nth_previous_buffer(n, exclude_visible)
   trim_and_filter_dead()
 
   -- Ignore current buffer
-  local current_buf = vim.api.nvim_get_current_buf()
-  local buffer_history_without_current = vim.tbl_filter(function(buf) return buf ~= current_buf end, buffer_history)
+  local excluded_bufs = { vim.api.nvim_get_current_buf() }
+  if exclude_visible then
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      table.insert(excluded_bufs, vim.api.nvim_win_get_buf(win))
+    end
+  end
+  local buffer_history_without_current = vim.tbl_filter(
+    function(buf) return not vim.tbl_contains(excluded_bufs, buf) end,
+    buffer_history
+  )
 
   return buffer_history_without_current[n]
 end

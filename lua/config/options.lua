@@ -65,7 +65,7 @@ vim.o.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 opt.shortmess:append('I')
 
 -- statusline
-opt.cmdheight = 1
+opt.cmdheight = 0
 opt.laststatus = 0
 
 -- Default splitting will cause your main splits to jump when opening an edgebar.

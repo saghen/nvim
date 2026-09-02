@@ -31,8 +31,8 @@ return {
       { '<leader>fg', "<cmd>lua require'telescope'.extensions.repo.list{}<cr>", desc = 'Git Repositories' },
 
       -- git
-      { '<leader>gsc', '<cmd>Telescope git_commits<cr>', desc = 'commits' },
-      { '<leader>gss', '<cmd>Telescope git_status<cr>', desc = 'status' },
+      { '<leader>sgc', '<cmd>Telescope git_commits<cr>', desc = 'commits' },
+      { '<leader>sgs', '<cmd>Telescope git_status<cr>', desc = 'status' },
 
       -- search
       { '<leader>sa', '<cmd>Telescope autocommands<cr>', desc = 'Auto Commands' },

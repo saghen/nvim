@@ -4,16 +4,16 @@ return {
     'linrongbin16/gitlinker.nvim',
     cmd = 'GitLink',
     keys = {
-      { '<leader>gyf', '<cmd>GitLink<cr>', mode = { 'n', 'v' }, desc = 'Copy file url' },
-      { '<leader>gxf', '<cmd>GitLink!', mode = { 'n', 'v' }, desc = 'Open file in browser' },
+      { '<leader>Gyf', '<cmd>GitLink<cr>', mode = { 'n', 'v' }, desc = 'Copy file url' },
+      { '<leader>Gxf', '<cmd>GitLink!', mode = { 'n', 'v' }, desc = 'Open file in browser' },
 
-      { '<leader>gxb', '<cmd>GitLink current_branch<cr>', mode = { 'n', 'v' }, desc = 'Open branch in browser' },
-      { '<leader>gyb', '<cmd>GitLink current_branch<cr>', mode = { 'n', 'v' }, desc = 'Copy branch url' },
+      { '<leader>Gxb', '<cmd>GitLink current_branch<cr>', mode = { 'n', 'v' }, desc = 'Open branch in browser' },
+      { '<leader>Gyb', '<cmd>GitLink current_branch<cr>', mode = { 'n', 'v' }, desc = 'Copy branch url' },
 
-      { '<leader>gxr', '<cmd>GitLink! default_branch<cr>', mode = { 'n', 'v' }, desc = 'Open repo in browser' },
-      { '<leader>gyr', '<cmd>GitLink default_branch<cr>', mode = { 'n', 'v' }, desc = 'Copy repo url' },
+      { '<leader>Gxr', '<cmd>GitLink! default_branch<cr>', mode = { 'n', 'v' }, desc = 'Open repo in browser' },
+      { '<leader>Gyr', '<cmd>GitLink default_branch<cr>', mode = { 'n', 'v' }, desc = 'Copy repo url' },
 
-      { '<leader>gxB', '<cmd>GitLink! blame<cr>', mode = { 'n', 'v' }, desc = 'Open blame in browser' },
+      { '<leader>GxB', '<cmd>GitLink! blame<cr>', mode = { 'n', 'v' }, desc = 'Open blame in browser' },
     },
     opts = {},
   },
@@ -28,14 +28,14 @@ return {
       'linrongbin16/gitlinker.nvim',
     },
     keys = {
-      { '<leader>gsl', '<cmd>AdvancedGitSearch search_log_content_file<cr>', desc = 'Search log content (file)' },
-      { '<leader>gsL', '<cmd>AdvancedGitSearch search_log_content<cr>', desc = 'Search log content (repo)' },
-      { '<leader>gsdf', '<cmd>AdvancedGitSearch diff_commit_file<cr>', desc = 'Diff with commit (file)' },
-      { '<leader>gsdb', '<cmd>AdvancedGitSearch diff_branch_file', 'Diff with branch (file)' },
-      { '<leader>gsdl', '<cmd>AdvancedGitSearch diff_commit_line', 'Diff with commit (line)' },
-      { '<leader>gsb', '<cmd>AdvancedGitSearch changed_on_branch<cr>', desc = 'Changed on branch' },
-      { '<leader>gsc', '<cmd>AdvancedGitSearch checkout_reflog<cr>', desc = 'Checkout via reflog' },
-      { '<leader>gsg', '<cmd>AdvancedGitSearch show_custom_functions<cr>', desc = 'Pick a picker' },
+      { '<leader>sgl', '<cmd>AdvancedGitSearch search_log_content_file<cr>', desc = 'Search log content (file)' },
+      { '<leader>sgL', '<cmd>AdvancedGitSearch search_log_content<cr>', desc = 'Search log content (repo)' },
+      { '<leader>sgdf', '<cmd>AdvancedGitSearch diff_commit_file<cr>', desc = 'Diff with commit (file)' },
+      { '<leader>sgdb', '<cmd>AdvancedGitSearch diff_branch_file', 'Diff with branch (file)' },
+      { '<leader>sgdl', '<cmd>AdvancedGitSearch diff_commit_line', 'Diff with commit (line)' },
+      { '<leader>sgb', '<cmd>AdvancedGitSearch changed_on_branch<cr>', desc = 'Changed on branch' },
+      { '<leader>sgc', '<cmd>AdvancedGitSearch checkout_reflog<cr>', desc = 'Checkout via reflog' },
+      { '<leader>sgg', '<cmd>AdvancedGitSearch show_custom_functions<cr>', desc = 'Pick a picker' },
     },
     config = function()
       require('telescope').setup({
@@ -63,9 +63,11 @@ return {
     command = { 'Neogit', 'NeogitCommit', 'NeogitLogCurrent', 'NeogitResetState' },
     keys = {
       -- NOTE: use `b o` in neogit to open PR
-      { '<leader>gg', '<cmd>Neogit kind=replace<cr>', desc = 'Open Neogit' },
+      { '<leader>g', '<cmd>Neogit kind=replace<cr>', desc = 'Open Neogit' },
     },
     opts = {
+      -- Hides the hints at the top of the status buffer
+      disable_hint = true,
       -- TODO: seems neat but causes weird flickering with cmdheight=0
       process_spinner = false,
       -- don't scope persisted settings on a per-project basis
@@ -76,6 +78,7 @@ return {
       -- graph like https://github.com/rbong/vim-flog
       graph_style = 'unicode',
 
+      commit_view = { kind = 'replace' },
       commit_editor = { kind = 'split' },
       popup = { kind = 'split' },
       mappings = {

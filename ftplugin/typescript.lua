@@ -1,2 +1,2 @@
 vim.treesitter.start()
-vim.lsp.enable('tsgo')
+vim.lsp.enable('tsc')

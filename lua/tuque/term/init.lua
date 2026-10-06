@@ -62,25 +62,38 @@ end
 vim.api.nvim_create_autocmd('TermClose', {
   callback = function(args)
     local buf = args.buf
-    if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, { force = true }) end
+    if not vim.api.nvim_buf_is_valid(buf) then return end
 
-    local win = vim.fn.bufwinid(buf)
-    if win == -1 or not vim.api.nvim_win_is_valid(win) then return end
+    -- Swap the buffer out of its windows *before* deleting it, since deleting a buffer
+    -- closes all windows displaying it
+    local wins = vim.fn.win_findbuf(buf)
+    if #wins > 0 then
+      local alt
 
-    -- focus last term if it exists
-    local term = vim.tbl_filter(function(term) return term.buf == buf end, Manager.terms)[1]
-    if term ~= nil then
-      local term_history = Manager.get_term_history()
-      for _, other_term in ipairs(term_history) do
-        if term.type == other_term.type and not other_term.is_visible() then return other_term:focus() end
+      -- prefer last term of the same type if it exists
+      local term = vim.tbl_filter(function(term) return term.buf == buf end, Manager.terms)[1]
+      if term ~= nil then
+        for _, other_term in ipairs(Manager.get_term_history()) do
+          if other_term ~= term and term.type == other_term.type and not other_term:is_visible() then
+            alt = other_term.buf
+            break
+          end
+        end
+      end
+
+      -- otherwise, last buffer
+      if not alt then
+        local buffer_history = require('tuque.buffer-history')
+        alt = buffer_history.get_nth_previous_buffer(1, true) or buffer_history.get_nth_previous_buffer(1)
+      end
+      if not alt or alt == buf or not vim.api.nvim_buf_is_valid(alt) then alt = vim.api.nvim_create_buf(true, false) end
+
+      for _, win in ipairs(wins) do
+        if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_set_buf(win, alt) end
       end
     end
 
-    -- focus last buffer
-    local buffer_history = require('tuque.buffer-history')
-    local alt = buffer_history.get_nth_previous_buffer(1, true) or buffer_history.get_nth_previous_buffer(1)
-    if not alt or not vim.api.nvim_buf_is_valid(alt) then alt = vim.api.nvim_create_buf(true, false) end
-    vim.api.nvim_win_set_buf(win, alt)
+    vim.api.nvim_buf_delete(buf, { force = true })
   end,
 })
 

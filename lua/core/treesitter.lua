@@ -8,6 +8,7 @@ return {
       'markdown',
       'markdown_inline',
       'html',
+      'just',
       'json',
       'nix',
       'python',

@@ -53,8 +53,7 @@ return {
 
   -- main client
   {
-    'saghen/neogit',
-    branch = 'configurable-popup-kind',
+    'NeogitOrg/neogit',
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-telescope/telescope.nvim',
@@ -78,7 +77,6 @@ return {
       -- graph like https://github.com/rbong/vim-flog
       graph_style = 'unicode',
 
-      commit_view = { kind = 'replace' },
       commit_editor = { kind = 'split' },
       popup = { kind = 'split' },
       mappings = {

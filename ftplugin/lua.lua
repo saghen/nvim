@@ -11,7 +11,7 @@ vim.lsp.config('emmylua_ls', {
         },
       },
       workspace = {
-        library = { '$VIMRUNTIME', '$HOME/.local/share/nvim/lazy' },
+        workspaceRoots = vim.api.nvim_list_runtime_paths(),
         ignoreGlobs = { '**/*_spec.lua', '**/test_*.lua', '**/mini.nvim/**' },
       },
     },

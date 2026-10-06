@@ -25,7 +25,7 @@ return {
   { 'saghen/blink.indent', dev = true, opts = { dedent_scoped_filetypes = true } },
   {
     'saghen/blink.pairs',
-    -- dev = true,
+    dev = true,
     version = '*',
     build = function() require('blink.pairs').download():pwait() end,
     --- @module 'blink.pairs'

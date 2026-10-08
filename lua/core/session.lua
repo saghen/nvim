@@ -1,12 +1,8 @@
-local is_zellij = os.getenv('ZELLIJ') ~= nil
+-- each project runs in its own nvim server, which outlives the UI attached to it. the sockets are named
+-- after the project's path, and nvim-launch (nixfiles) starts or attaches to the server for $HOME
+local servers_dir = vim.env.XDG_RUNTIME_DIR .. '/tuque'
 
-local function update_zellij_tab_name()
-  if is_zellij then vim.system({ 'zellij', 'action', 'rename-tab', vim.fn.getcwd() }) end
-end
-update_zellij_tab_name()
-vim.api.nvim_create_autocmd({ 'DirChanged' }, {
-  callback = update_zellij_tab_name,
-})
+local function server_path(project_folder) return ('%s/%s.sock'):format(servers_dir, (project_folder:gsub('/', '%%'))) end
 
 local function list_projects()
   local top_level_folders = {
@@ -28,35 +24,39 @@ local function list_projects()
 end
 
 local function list_open_projects()
-  if not is_zellij then return {} end
-  local project_folders = vim.fn.system({ 'zellij', 'action', 'query-tab-names' })
-  return vim.split(project_folders, '\n')
+  return vim.tbl_map(
+    function(sock) return (vim.fn.fnamemodify(sock, ':t:r'):gsub('%%', '/')) end,
+    vim.fn.glob(servers_dir .. '/*.sock', true, true)
+  )
 end
 
 local function open_project(project_folder)
-  -- in zellij, so focus or open new tab
-  if is_zellij and vim.fn.getcwd() ~= os.getenv('HOME') then
-    -- attempt to focus an existing tab
-    local zellij_tab_cwds = vim.split(vim.fn.system({ 'zellij', 'action', 'query-tab-names' }), '\n')
-    for tab_idx, tab_cwd in ipairs(zellij_tab_cwds) do
-      if tab_cwd == project_folder then
-        vim.fn.system({ 'zellij', 'action', 'go-to-tab', tostring(tab_idx) })
-        return true
-      end
-    end
-
-    -- otherwise, create a new tab
-    vim.fn.system({ 'zellij', 'action', 'new-tab', '--cwd', project_folder, '--layout', 'neovim' })
-
-    -- in terminal, regular switching behavior
-  else
+  -- not running as a project server (i.e. plain `nvim`), so switch in place
+  if not vim.startswith(vim.v.servername, servers_dir) then
     vim.cmd('cd ' .. project_folder)
     vim.cmd('SessionManager load_current_dir_session')
+    return
   end
+
+  local sock = server_path(project_folder)
+  if sock == vim.v.servername then return end
+  if not vim.uv.fs_stat(sock) then
+    -- unset $NVIM so that flatten.nvim doesn't treat the server as a guest and exit.
+    -- no stdout/stderr pipes, since the server would die writing to them after we exit
+    vim.system(
+      { 'env', '-u', 'NVIM', 'nvim', '--headless', '--listen', sock },
+      { cwd = project_folder, detach = true, stdout = false, stderr = false }
+    )
+    -- connecting to a socket that never comes up hangs, so bail
+    if not vim.wait(5000, function() return vim.uv.fs_stat(sock) ~= nil end, 10) then
+      return vim.notify('Failed to start nvim server for ' .. project_folder, vim.log.levels.ERROR)
+    end
+  end
+  vim.cmd.connect(vim.fn.fnameescape(sock))
 end
 
 local function read_recent_projects()
-  local ok, result = pcall(vim.fn.readfile, vim.fn.stdpath('data') .. '/zellij-recency')
+  local ok, result = pcall(vim.fn.readfile, vim.fn.stdpath('data') .. '/project-recency')
   if not ok then return {} end
   return result
 end
@@ -72,7 +72,7 @@ local function write_recent_projects(project_folder)
   recency = vim.list_slice(recency, 1, 50)
 
   -- write
-  vim.fn.writefile(recency, vim.fn.stdpath('data') .. '/zellij-recency')
+  vim.fn.writefile(recency, vim.fn.stdpath('data') .. '/project-recency')
 end
 
 local function project_picker()

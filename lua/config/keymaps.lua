@@ -119,9 +119,17 @@ map({ 'x', 'o' }, 'n', "'Nn'[v:searchforward]", { expr = true, desc = 'Next sear
 map('n', 'N', "'nN'[v:searchforward].'zv'", { expr = true, desc = 'Prev search result' })
 map({ 'x', 'o' }, 'N', "'nN'[v:searchforward]", { expr = true, desc = 'Prev search result' })
 
--- quit
-map('n', '<leader>qq', '<cmd>qa<cr>', { desc = 'Quit all' })
-map('n', '<leader>qQ', '<cmd>qa!<cr>', { desc = 'Force quit all' })
+-- projects and quit
+-- project switching only works in project servers (i.e. nvim-launch), see tuque.session
+local session = require('tuque.session')
+if session.is_project_server() then
+  map('n', '<leader>-', session.pick_project, { desc = 'Projects' })
+  map('n', '<leader>qq', function() session.quit_project(false) end, { desc = 'Quit project' })
+  map('n', '<leader>qQ', function() session.quit_project(true) end, { desc = 'Force quit project' })
+else
+  map('n', '<leader>qq', '<cmd>qa<cr>', { desc = 'Quit all' })
+  map('n', '<leader>qQ', '<cmd>qa!<cr>', { desc = 'Force quit all' })
+end
 
 -- ctrl based commands
 map({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Save file' })

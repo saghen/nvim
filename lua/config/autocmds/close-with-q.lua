@@ -19,16 +19,9 @@ vim.api.nvim_create_autocmd('FileType', {
     'neo-tree',
     'blink-tree',
     'gitsigns-blame',
-    'AvanteAsk',
-    'AvanteInput',
-    'markdown',
     'Trouble',
   },
   callback = function(event)
-    local bo = vim.bo[event.buf]
-    if bo.filetype ~= 'markdown' or bo.buftype == 'help' then
-      -- bo.buflisted = false
-      vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = event.buf, silent = true, nowait = true })
-    end
+    vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = event.buf, silent = true, nowait = true })
   end,
 })

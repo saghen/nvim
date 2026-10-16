@@ -12,6 +12,29 @@ return {
       color = { suggestion_color = '#585b70' },
       log_level = 'off',
     },
+    config = function(_, opts)
+      require('supermaven-nvim').setup(opts)
+
+      -- supermaven copies the whole buffer into a string on every cursor move (normal mode too) and
+      -- every 25ms while polling for a completion, so reuse the last copy until the buffer changes
+      local util = require('supermaven-nvim.util')
+      local get_text, get_cursor_prefix = util.get_text, util.get_cursor_prefix
+      local text_key, text, prefix_key, prefix
+      util.get_text = function(bufnr)
+        local key = bufnr .. ':' .. vim.api.nvim_buf_get_changedtick(bufnr)
+        if key ~= text_key then
+          text_key, text = key, get_text(bufnr)
+        end
+        return text
+      end
+      util.get_cursor_prefix = function(bufnr, cursor)
+        local key = bufnr .. ':' .. vim.api.nvim_buf_get_changedtick(bufnr) .. ':' .. cursor[1] .. ':' .. cursor[2]
+        if key ~= prefix_key then
+          prefix_key, prefix = key, get_cursor_prefix(bufnr, cursor)
+        end
+        return prefix
+      end
+    end,
   },
 
   {

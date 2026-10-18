@@ -5,7 +5,6 @@ vim.pack.add({
   'https://github.com/nvim-telescope/telescope.nvim',
   'https://github.com/sindrets/diffview.nvim',
   'https://github.com/linrongbin16/gitlinker.nvim',
-  'https://github.com/aaronhallaert/advanced-git-search.nvim',
   'https://github.com/NeogitOrg/neogit',
 })
 
@@ -21,25 +20,6 @@ map({ 'n', 'v' }, '<leader>Gyr', '<cmd>GitLink default_branch<cr>', { desc = 'Co
 
 map({ 'n', 'v' }, '<leader>GxB', '<cmd>GitLink! blame<cr>', { desc = 'Open blame in browser' })
 require('gitlinker').setup({})
-
--- telescope pickers
-map('n', '<leader>sgl', '<cmd>AdvancedGitSearch search_log_content_file<cr>', { desc = 'Search log content (file)' })
-map('n', '<leader>sgL', '<cmd>AdvancedGitSearch search_log_content<cr>', { desc = 'Search log content (repo)' })
-map('n', '<leader>sgdf', '<cmd>AdvancedGitSearch diff_commit_file<cr>', { desc = 'Diff with commit (file)' })
-map('n', '<leader>sgdb', '<cmd>AdvancedGitSearch diff_branch_file<cr>', { desc = 'Diff with branch (file)' })
-map('n', '<leader>sgdl', '<cmd>AdvancedGitSearch diff_commit_line<cr>', { desc = 'Diff with commit (line)' })
-map('n', '<leader>sgb', '<cmd>AdvancedGitSearch changed_on_branch<cr>', { desc = 'Changed on branch' })
-map('n', '<leader>sgg', '<cmd>AdvancedGitSearch show_custom_functions<cr>', { desc = 'Pick a picker' })
-require('telescope').setup({
-  extensions = {
-    advanced_git_search = {
-      show_builtin_git_pickers = true, -- show builtin pickers for show_custom_functions
-      browse_command = 'GitLink! rev={commit_hash}',
-      diff_plugin = 'diffview',
-    },
-  },
-})
-require('telescope').load_extension('advanced_git_search')
 
 -- main client
 -- NOTE: use `b o` in neogit to open PR

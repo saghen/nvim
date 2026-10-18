@@ -98,10 +98,8 @@ local web_languages = {
   'css', 'scss', 'less', 'html',
   'json', 'jsonc', 'yaml', 'graphql', 'handlebars', 'svelte',
 }
-local has_biome = vim.fn.filereadable(vim.fn.getcwd() .. '/biome.json')
-local web_formatter = has_biome == 1 and 'biome' or 'prettier_d'
 for _, lang in ipairs(web_languages) do
-  set_formatter(lang, web_formatter)
+  set_formatter(lang, 'prettier_d')
 end
 
 -- enable efm formatting for all filetypes

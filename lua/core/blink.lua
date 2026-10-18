@@ -1,34 +1,25 @@
 local utils = require('tuque.utils')
 local map = utils.map
 
-if false then
-  utils.pack_add_dev({ 'https://github.com/saghen/blink.ai' })
-  --- @module 'blink.ai'
-  --- @type blink.ai.Config
-  require('blink.ai').setup({
-    adapters = {
-      anthropic = {
-        api_key = function() return vim.g.ANTHROPIC_API_KEY end,
-      },
-    },
-  })
-end
+utils.pack_build('blink.cmp', function() require('blink.cmp').build():pwait() end)
+utils.pack_add_dev({
+  'https://github.com/saghen/blink.lib',
+  'https://github.com/saghen/blink.indent',
+  { src = 'https://github.com/saghen/blink.pairs', version = vim.version.range('*') },
+  'https://github.com/saghen/blink.cmp',
+  'https://github.com/saghen/blink.nvim',
+})
 
-utils.pack_add_dev({ 'https://github.com/saghen/blink.lib' })
 map('n', '<leader>bf', function() require('blink.lib.bench').run_file() end, { desc = 'Run benchmarks (current file)' })
 map('n', '<leader>br', function() require('blink.lib.bench').run_files() end, { desc = 'Run benchmarks' })
 
-utils.pack_add_dev({ 'https://github.com/saghen/blink.indent' })
 require('blink.indent').setup({ dedent_scoped_filetypes = true })
 
-utils.pack_build('blink.pairs', function() require('blink.pairs').download():pwait() end)
-utils.pack_add_dev({ { src = 'https://github.com/saghen/blink.pairs', version = vim.version.range('*') } })
+require('blink.pairs').download():pwait()
 --- @module 'blink.pairs'
 --- @type blink.pairs.Config
 require('blink.pairs').setup({})
 
-utils.pack_build('blink.cmp', function() require('blink.cmp').build():pwait() end)
-utils.pack_add_dev({ 'https://github.com/saghen/blink.cmp' })
 --- @module 'blink.cmp'
 --- @type blink.cmp.Config
 require('blink.cmp').setup({
@@ -59,7 +50,6 @@ require('blink.cmp').setup({
   signature = { enabled = true, window = { show_documentation = false } },
 })
 
-utils.pack_add_dev({ 'https://github.com/saghen/blink.nvim' })
 -- chartoggle
 map(
   { 'i', 'n', 'v' },
@@ -74,7 +64,6 @@ map(
   function() require('blink.chartoggle').toggle_char_eol(',') end,
   { desc = 'Toggle , at eol' }
 )
-map('i', '<C-,>', function() require('blink.chartoggle').toggle_char_eol(',') end, { desc = 'Toggle , at eol' })
 
 -- select
 map('n', '<leader>mb', function() require('blink.select').show('buffers') end, { desc = 'Select buffer' })

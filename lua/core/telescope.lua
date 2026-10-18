@@ -3,7 +3,10 @@ local map = require('tuque.utils').map
 vim.pack.add({
   'https://github.com/nvim-lua/plenary.nvim',
   'https://github.com/nvim-telescope/telescope.nvim',
+  'https://github.com/kkharji/sqlite.lua',
+  { src = 'https://github.com/danielfalk/smart-open.nvim', version = '0.3.x' },
 })
+
 map(
   'n',
   '<leader>/',
@@ -129,10 +132,6 @@ require('telescope').setup({
 })
 
 -- smarter file opening
-vim.pack.add({
-  'https://github.com/kkharji/sqlite.lua',
-  { src = 'https://github.com/danielfalk/smart-open.nvim', version = '0.3.x' },
-})
 map(
   'n',
   '<CR>',

@@ -1,6 +1,10 @@
 local map = require('tuque.utils').map
 
-vim.pack.add({ 'https://github.com/nvim-mini/mini.nvim' })
+vim.pack.add({
+  'https://github.com/nvim-mini/mini.nvim',
+  'https://github.com/Wansmer/treesj',
+})
+
 map('n', '<leader>bd', function()
   local bd = require('mini.bufremove').delete
   if vim.bo.modified then
@@ -24,9 +28,5 @@ require('mini.cursorword').setup({ delay = 400 })
 require('mini.surround').setup({ n_lines = 50 }) -- number of lines to search
 require('mini.test').setup()
 
-vim.pack.add({
-  { src = 'https://github.com/nvim-treesitter/nvim-treesitter', version = 'main' },
-  'https://github.com/Wansmer/treesj',
-})
 map('n', 'gm', '<cmd>TSJToggle<cr>', { desc = 'Toggle Block' })
 require('treesj').setup({ use_default_keymap = false, max_join_length = 1000 })

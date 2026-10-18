@@ -1,15 +1,10 @@
--- recolor devicons to match theme
 vim.pack.add({
+  'https://github.com/navarasu/onedark.nvim',
   { src = 'https://github.com/nvim-tree/nvim-web-devicons', version = '9154484705968658e9aab2b894d1b2a64bf9f83d' },
   'https://github.com/rachartier/tiny-devicons-auto-colors.nvim',
 })
-vim.api.nvim_create_autocmd('UIEnter', {
-  once = true,
-  callback = function() require('tiny-devicons-auto-colors').setup({}) end,
-})
 
 -- main theme
-vim.pack.add({ 'https://github.com/navarasu/onedark.nvim' })
 require('onedark').setup({
   transparent = false,
   colors = {
@@ -138,6 +133,16 @@ require('onedark').setup({
 
     TerminalWinbarFocus = { bg = '$blue', fg = '$black' },
     TerminalAgentWinbarFocus = { bg = '$green', fg = '$black' },
+
+    LiveRenameCurrent = { fg = '$blue', bg = '$diff_change', fmt = '$none' },
+    LiveRenameOther = { fg = '$red', bg = '$diff_delete' },
+
+    WhichKeyBorder = { bg = '$bg_d', fg = '$bg_d' },
+    WhichKeyTitle = { bg = '$bg_d', fg = '$blue' },
+    WhichKeySeparator = { fg = '$grey' },
+    WhichKey = { fg = '$purple' },
+    WhichKeyGroup = { fg = '$grey' },
+    WhichKeyDesc = { fg = '$fg' },
   },
 })
 require('onedark').load()
@@ -148,3 +153,6 @@ vim.api.nvim_set_hl(0, 'BlinkIndentBlue', { link = 'RainbowBlue' })
 vim.api.nvim_set_hl(0, 'BlinkPairsOrange', { link = 'RainbowOrange' })
 vim.api.nvim_set_hl(0, 'BlinkPairsPurple', { link = 'RainbowPurple' })
 vim.api.nvim_set_hl(0, 'BlinkPairsBlue', { link = 'RainbowBlue' })
+
+-- recolor devicons to match theme
+require('tiny-devicons-auto-colors').setup({})

@@ -23,11 +23,8 @@ local function import(module)
   end
 end
 
--- flatten.nvim must load before any other plugin
+-- flatten.nvim must load before any other plugin, followed by the colorscheme
 require('core.terminal')
--- onedark.nvim must load before the other plugins, but after the modules extending its highlights
-require('core.lsp')
-require('core.ui')
 require('core.theme')
 import('core')
 import('langs')
@@ -35,5 +32,3 @@ if os.getenv('NVIM_DEV') ~= nil or os.getenv('NVIM_PROFILE') ~= nil then import(
 
 require('config.keymaps')
 require('tuque.term')
-
-vim.lsp.enable('efm')

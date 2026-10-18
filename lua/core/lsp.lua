@@ -1,5 +1,12 @@
 local map = require('tuque.utils').map
 
+vim.pack.add({
+  'https://github.com/neovim/nvim-lspconfig',
+  'https://github.com/creativenull/efmls-configs-nvim',
+  'https://github.com/Chaitanyabsprip/fastaction.nvim',
+  'https://github.com/saecki/live-rename.nvim',
+})
+
 -- Use LspAttach autocommand to only map the following keys
 -- after the language server attaches to the current buffer
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -69,10 +76,6 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 })
 
 -- Formatting
-vim.pack.add({
-  'https://github.com/neovim/nvim-lspconfig',
-  'https://github.com/creativenull/efmls-configs-nvim',
-})
 map({ 'n', 'v' }, '<leader>cf', function()
   vim.lsp.buf.format({ filter = function(client) return client.name == 'efm' end })
 end, { desc = 'Format' })
@@ -111,14 +114,12 @@ vim.lsp.config('efm', {
 vim.lsp.enable('efm')
 
 -- Code actions
-vim.pack.add({ 'https://github.com/Chaitanyabsprip/fastaction.nvim' })
 map('n', '<leader>ca', function() require('fastaction').code_action() end, { desc = 'Code Action' })
 --- @module 'fastaction'
 --- @type FastActionConfig
 require('fastaction').setup({ dismiss_keys = { 'j', 'k', '<c-c>', 'q', '<Esc>' } })
 
 -- rename in-place with the LSP and live feedback
-vim.pack.add({ 'https://github.com/saecki/live-rename.nvim' })
 map('n', 'cr', function() require('live-rename').rename() end, { desc = 'Rename' })
 map(
   'n',
@@ -127,10 +128,3 @@ map(
   { desc = 'Rename (replace)' }
 )
 require('live-rename').setup({ hl = { current = 'LiveRenameCurrent', others = 'LiveRenameOther' } })
-vim.pack.add({ 'https://github.com/navarasu/onedark.nvim' })
-require('onedark').setup({
-  highlights = {
-    LiveRenameCurrent = { fg = '$blue', bg = '$diff_change', fmt = '$none' },
-    LiveRenameOther = { fg = '$red', bg = '$diff_delete' },
-  },
-})

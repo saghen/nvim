@@ -25,6 +25,8 @@ map('n', '<leader>tt', function() require('mini.test').run() end, { desc = 'Test
 map('n', '<leader>tf', function() require('mini.test').run_file() end, { desc = 'Test File' })
 map('n', '<leader>tl', function() require('mini.test').run_at_location() end, { desc = 'Test Suite' })
 require('mini.ai').setup()
+require('mini.icons').setup()
+MiniIcons.mock_nvim_web_devicons()
 require('mini.cursorword').setup({ delay = 400 })
 require('mini.surround').setup({ n_lines = 50 }) -- number of lines to search
 require('mini.test').setup()

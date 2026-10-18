@@ -25,19 +25,14 @@ if os.getenv('NVIM_DEV') == nil then
       {
         mode = 'n',
         { '<leader>a', group = 'AI' },
-        { '<leader>ag', group = 'AI Prompt' },
-        { '<leader>aw', group = 'AI Whisper' },
         { '<leader>b', group = 'Buffers' },
         { '<leader>c', group = 'Coding' },
-        { '<leader>d', group = 'Debug' },
         { '<leader>f', group = 'Files' },
         { '<leader>G', group = 'Git extras' },
-        { '<leader>i', group = 'Interfaces' },
         { '<leader>q', group = 'Quit' },
         { '<leader>s', group = 'Search' },
         { '<leader>u', group = 'Options' },
         { '<leader>w', group = 'Windows' },
-        { '<leader>x', group = 'Quickfix' },
       },
     },
     icons = {
@@ -125,9 +120,5 @@ if os.getenv('NVIM_DEV') == nil then
   vim.pack.add({ 'https://github.com/j-hui/fidget.nvim' })
   require('fidget').setup({
     notification = { window = { normal_hl = 'Normal' } },
-    integration = {
-      ['nvim-tree'] = { enable = false },
-      ['xcodebuild-nvim'] = { enable = false },
-    },
   })
 end

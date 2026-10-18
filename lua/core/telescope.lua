@@ -34,7 +34,6 @@ map(
   '<cmd>lua require("telescope.builtin").find_files({ cwd = "~/.config" })<cr>',
   { desc = 'Find .config file' }
 )
-map('n', '<leader>fg', "<cmd>lua require'telescope'.extensions.repo.list{}<cr>", { desc = 'Git Repositories' })
 
 -- git
 map('n', '<leader>sgc', '<cmd>Telescope git_commits<cr>', { desc = 'commits' })

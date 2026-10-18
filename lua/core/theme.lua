@@ -1,10 +1,5 @@
-vim.pack.add({
-  'https://github.com/navarasu/onedark.nvim',
-  { src = 'https://github.com/nvim-tree/nvim-web-devicons', version = '9154484705968658e9aab2b894d1b2a64bf9f83d' },
-  'https://github.com/rachartier/tiny-devicons-auto-colors.nvim',
-})
+vim.pack.add({ 'https://github.com/navarasu/onedark.nvim' })
 
--- main theme
 require('onedark').setup({
   transparent = false,
   colors = {
@@ -71,12 +66,8 @@ require('onedark').setup({
 
     MatchParen = { fg = '$yellow', bg = 'transparent' },
 
-    DashboardHeader = { fg = '$blue' },
-
     InclineNormal = { bg = '$bg1' },
     InclineNormalNC = { bg = '$bg1' },
-
-    EdgyNormal = { bg = '$bg_d' },
 
     BlinkCmpGhostText = { fg = '$grey' },
     BlinkCmpMenu = { bg = '$bg1' },
@@ -102,12 +93,6 @@ require('onedark').setup({
     ModeSelect = { fg = '$purple', bg = '$bg1' },
     ModeReplace = { fg = '$red', bg = '$bg1' },
     ModeTerminal = { fg = '$yellow', bg = '$bg1' },
-
-    MiniClueBorder = { fg = '$bg_d', bg = '$bg_d' },
-    MiniClueSeparator = { fg = '$bg2' },
-    MiniClueTitle = { fg = '$blue', bg = '$bg_d' },
-    MiniClueDescGroup = { fg = '$grey', bg = '$bg_d' },
-    MiniClueDescSingle = { bg = '$bg_d' },
 
     TelescopePathSeparator = { fg = '$light_grey' },
 
@@ -141,6 +126,3 @@ vim.api.nvim_set_hl(0, 'BlinkIndentBlue', { link = 'RainbowBlue' })
 vim.api.nvim_set_hl(0, 'BlinkPairsOrange', { link = 'RainbowOrange' })
 vim.api.nvim_set_hl(0, 'BlinkPairsPurple', { link = 'RainbowPurple' })
 vim.api.nvim_set_hl(0, 'BlinkPairsBlue', { link = 'RainbowBlue' })
-
--- recolor devicons to match theme
-require('tiny-devicons-auto-colors').setup({})

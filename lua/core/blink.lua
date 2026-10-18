@@ -7,7 +7,6 @@ utils.pack_add_dev({
   'https://github.com/saghen/blink.indent',
   { src = 'https://github.com/saghen/blink.pairs', version = vim.version.range('*') },
   'https://github.com/saghen/blink.cmp',
-  'https://github.com/saghen/blink.nvim',
 })
 
 map('n', '<leader>bf', function() require('blink.lib.bench').run_file() end, { desc = 'Run benchmarks (current file)' })
@@ -48,44 +47,4 @@ require('blink.cmp').setup({
   },
 
   signature = { enabled = true, window = { show_documentation = false } },
-})
-
--- chartoggle
-map(
-  { 'i', 'n', 'v' },
-  '<C-;>',
-  function() require('blink.chartoggle').toggle_char_eol(';') end,
-  { desc = 'Toggle ; at eol' }
-)
-map('v', ',', function() require('blink.chartoggle').toggle_char_eol(',') end, { desc = 'Toggle , at eol' })
-map(
-  { 'i', 'n' },
-  '<C-,>',
-  function() require('blink.chartoggle').toggle_char_eol(',') end,
-  { desc = 'Toggle , at eol' }
-)
-
--- select
-map('n', '<leader>mb', function() require('blink.select').show('buffers') end, { desc = 'Select buffer' })
-map('n', '<leader>md', function() require('blink.select').show('diagnostics') end, { desc = 'Select diagnostic' })
-map(
-  'n',
-  '<leader>mc',
-  function() require('blink.select').show('recent-commands') end,
-  { desc = 'Select recent commands' }
-)
-map('n', '<leader>ms', function() require('blink.select').show('symbols') end, { desc = 'Select symbol' })
-map('n', '<leader>my', function() require('blink.select').show('yank-history') end, { desc = 'Select yank history' })
-map('n', '<leader>m/', function() require('blink.select').show('recent-searches') end, { desc = 'Select search' })
-map('n', '<leader>ma', function() require('blink.select').show('code-actions') end, { desc = 'Select code action' })
-map('n', '<leader>mo', function() require('blink.select').show('smart-open') end, { desc = 'Select code action' })
-
-require('blink').setup({
-  chartoggle = { enabled = true },
-  select = {
-    enabled = true,
-    mapping = {
-      selection = { 'm', 'n', 'e', 'i', 'a', 'r', 's', 't' },
-    },
-  },
 })

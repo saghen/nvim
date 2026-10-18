@@ -1,72 +1,74 @@
-return {
-  -- prevent neovim from scrolling past the bottom of the buffer
-  'saghen/filler-begone.nvim',
+local map = require('tuque.utils').map
 
-  -- shows available keymaps as you type
-  {
-    enabled = os.getenv('NVIM_DEV') == nil,
-    'folke/which-key.nvim',
-    event = 'VeryLazy',
-    keys = {
-      {
-        '<leader>?',
-        function() require('which-key').show({ global = false }) end,
-        desc = 'Buffer Local Keymaps (which-key)',
-      },
-    },
-    --- @module 'which-key'
-    --- @class wk.Opts
-    opts = {
-      preset = 'helix',
-      delay = 500,
-      --- @type wk.Spec
-      spec = {
-        {
-          mode = 'n',
-          { '<leader>a', group = 'AI' },
-          { '<leader>ag', group = 'AI Prompt' },
-          { '<leader>aw', group = 'AI Whisper' },
-          { '<leader>b', group = 'Buffers' },
-          { '<leader>c', group = 'Coding' },
-          { '<leader>d', group = 'Debug' },
-          { '<leader>f', group = 'Files' },
-          { '<leader>G', group = 'Git extras' },
-          { '<leader>i', group = 'Interfaces' },
-          { '<leader>q', group = 'Quit' },
-          { '<leader>s', group = 'Search' },
-          { '<leader>u', group = 'Options' },
-          { '<leader>w', group = 'Windows' },
-          { '<leader>x', group = 'Quickfix' },
+-- prevent neovim from scrolling past the bottom of the buffer
+vim.pack.add({ 'https://github.com/saghen/filler-begone.nvim' })
+
+-- shows available keymaps as you type
+if os.getenv('NVIM_DEV') == nil then
+  vim.pack.add({ 'https://github.com/folke/which-key.nvim' })
+  map(
+    'n',
+    '<leader>?',
+    function() require('which-key').show({ global = false }) end,
+    { desc = 'Buffer Local Keymaps (which-key)' }
+  )
+  vim.api.nvim_create_autocmd('UIEnter', {
+    once = true,
+    callback = function()
+      --- @module 'which-key'
+      --- @class wk.Opts
+      require('which-key').setup({
+        preset = 'helix',
+        delay = 500,
+        --- @type wk.Spec
+        spec = {
+          {
+            mode = 'n',
+            { '<leader>a', group = 'AI' },
+            { '<leader>ag', group = 'AI Prompt' },
+            { '<leader>aw', group = 'AI Whisper' },
+            { '<leader>b', group = 'Buffers' },
+            { '<leader>c', group = 'Coding' },
+            { '<leader>d', group = 'Debug' },
+            { '<leader>f', group = 'Files' },
+            { '<leader>G', group = 'Git extras' },
+            { '<leader>i', group = 'Interfaces' },
+            { '<leader>q', group = 'Quit' },
+            { '<leader>s', group = 'Search' },
+            { '<leader>u', group = 'Options' },
+            { '<leader>w', group = 'Windows' },
+            { '<leader>x', group = 'Quickfix' },
+          },
         },
-      },
-      icons = {
-        mappings = false,
-        breadcrumb = '»', -- symbol used in the command line area that shows your active key combo
-        separator = ' ▎ ', -- symbol used between a key and it's label
-      },
-      show_help = false,
-      sort = { 'local', 'order', 'alphanum', 'mod' },
-    },
+        icons = {
+          mappings = false,
+          breadcrumb = '»', -- symbol used in the command line area that shows your active key combo
+          separator = ' ▎ ', -- symbol used between a key and it's label
+        },
+        show_help = false,
+        sort = { 'local', 'order', 'alphanum', 'mod' },
+      })
+    end,
+  })
+end
+vim.pack.add({ 'https://github.com/navarasu/onedark.nvim' })
+require('onedark').setup({
+  highlights = {
+    WhichKeyBorder = { bg = '$bg_d', fg = '$bg_d' },
+    WhichKeyTitle = { bg = '$bg_d', fg = '$blue' },
+    WhichKeySeparator = { fg = '$grey' },
+    WhichKey = { fg = '$purple' },
+    WhichKeyGroup = { fg = '$grey' },
+    WhichKeyDesc = { fg = '$fg' },
   },
-  {
-    'navarasu/onedark.nvim',
-    opts = {
-      highlights = {
-        WhichKeyBorder = { bg = '$bg_d', fg = '$bg_d' },
-        WhichKeyTitle = { bg = '$bg_d', fg = '$blue' },
-        WhichKeySeparator = { fg = '$grey' },
-        WhichKey = { fg = '$purple' },
-        WhichKeyGroup = { fg = '$grey' },
-        WhichKeyDesc = { fg = '$fg' },
-      },
-    },
-  },
+})
 
-  -- winbar, floating top right
-  {
-    'b0o/incline.nvim',
-    event = 'VeryLazy',
-    opts = {
+-- winbar, floating top right
+vim.pack.add({ 'https://github.com/b0o/incline.nvim' })
+vim.api.nvim_create_autocmd('UIEnter', {
+  once = true,
+  callback = function()
+    require('incline').setup({
       hide = { cursorline = true },
       ignore = { buftypes = function(_, buftype) return buftype ~= '' and buftype ~= 'terminal' end },
       window = {
@@ -133,20 +135,23 @@ return {
           ' ',
         }
       end,
-    },
-  },
+    })
+  end,
+})
 
-  -- LSP notifications
-  {
-    'j-hui/fidget.nvim',
-    enabled = os.getenv('NVIM_DEV') == nil,
-    event = 'VeryLazy',
-    opts = {
-      notification = { window = { normal_hl = 'Normal' } },
-      integration = {
-        ['nvim-tree'] = { enable = false },
-        ['xcodebuild-nvim'] = { enable = false },
-      },
-    },
-  },
-}
+-- LSP notifications
+if os.getenv('NVIM_DEV') == nil then
+  vim.pack.add({ 'https://github.com/j-hui/fidget.nvim' })
+  vim.api.nvim_create_autocmd('UIEnter', {
+    once = true,
+    callback = function()
+      require('fidget').setup({
+        notification = { window = { normal_hl = 'Normal' } },
+        integration = {
+          ['nvim-tree'] = { enable = false },
+          ['xcodebuild-nvim'] = { enable = false },
+        },
+      })
+    end,
+  })
+end

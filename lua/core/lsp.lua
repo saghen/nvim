@@ -1,3 +1,5 @@
+local map = require('tuque.utils').map
+
 -- Use LspAttach autocommand to only map the following keys
 -- after the language server attaches to the current buffer
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -66,94 +68,69 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   end,
 })
 
-return {
-  -- Formatting
-  {
-    'creativenull/efmls-configs-nvim',
-    dependencies = 'neovim/nvim-lspconfig',
-    lazy = false,
-    keys = {
-      {
-        '<leader>cf',
-        function()
-          vim.lsp.buf.format({ filter = function(client) return client.name == 'efm' end })
-        end,
-        desc = 'Format',
-        mode = { 'n', 'v' },
-      },
-      {
-        '<leader>uf',
-        function()
-          local filetype = vim.bo.filetype
-          disable_autoformat_filetypes[filetype] = not disable_autoformat_filetypes[filetype]
-        end,
-        desc = 'Toggle format on save',
-      },
-    },
-    config = function()
-      local set_formatter = function(lang, formatter)
-        vim.lsp.config('efm', {
-          settings = { languages = { [lang] = { require('efmls-configs.formatters.' .. formatter) } } },
-        })
-      end
+-- Formatting
+vim.pack.add({
+  'https://github.com/neovim/nvim-lspconfig',
+  'https://github.com/creativenull/efmls-configs-nvim',
+})
+map({ 'n', 'v' }, '<leader>cf', function()
+  vim.lsp.buf.format({ filter = function(client) return client.name == 'efm' end })
+end, { desc = 'Format' })
+map('n', '<leader>uf', function()
+  local filetype = vim.bo.filetype
+  disable_autoformat_filetypes[filetype] = not disable_autoformat_filetypes[filetype]
+end, { desc = 'Toggle format on save' })
+local set_formatter = function(lang, formatter)
+  vim.lsp.config('efm', {
+    settings = { languages = { [lang] = { require('efmls-configs.formatters.' .. formatter) } } },
+  })
+end
 
-      set_formatter('python', 'ruff')
-      set_formatter('lua', 'stylua')
+set_formatter('python', 'ruff')
+set_formatter('lua', 'stylua')
 
-      -- stylua: ignore
-      local web_languages = {
-        'javascript', 'javascriptreact', 'typescript', 'typescriptreact',
-        'css', 'scss', 'less', 'html',
-        'json', 'jsonc', 'yaml', 'graphql', 'handlebars', 'svelte',
-      }
-      local has_biome = vim.fn.filereadable(vim.fn.getcwd() .. '/biome.json')
-      local web_formatter = has_biome == 1 and 'biome' or 'prettier_d'
-      for _, lang in ipairs(web_languages) do
-        set_formatter(lang, web_formatter)
-      end
-
-      -- enable efm formatting for all filetypes
-      vim.lsp.config('efm', {
-        cmd = { 'efm-langserver' },
-        filetypes = vim.tbl_keys(vim.lsp.config.efm.settings.languages),
-        root_markers = { '.git' },
-        init_options = { documentFormatting = true, documentRangeFormatting = true },
-      })
-      vim.lsp.enable('efm')
-    end,
-  },
-
-  -- Code actions
-  {
-    'Chaitanyabsprip/fastaction.nvim',
-    keys = {
-      {
-        '<leader>ca',
-        function() require('fastaction').code_action() end,
-        desc = 'Code Action',
-      },
-    },
-    --- @module 'fastaction'
-    --- @type FastActionConfig
-    opts = { dismiss_keys = { 'j', 'k', '<c-c>', 'q', '<Esc>' } },
-  },
-
-  -- rename in-place with the LSP and live feedback
-  {
-    'saecki/live-rename.nvim',
-    keys = {
-      { 'cr', function() require('live-rename').rename() end, desc = 'Rename' },
-      { 'cR', function() require('live-rename').rename({ text = '', insert = true }) end, desc = 'Rename (replace)' },
-    },
-    opts = { hl = { current = 'LiveRenameCurrent', others = 'LiveRenameOther' } },
-  },
-  {
-    'navarasu/onedark.nvim',
-    opts = {
-      highlights = {
-        LiveRenameCurrent = { fg = '$blue', bg = '$diff_change', fmt = '$none' },
-        LiveRenameOther = { fg = '$red', bg = '$diff_delete' },
-      },
-    },
-  },
+-- stylua: ignore
+local web_languages = {
+  'javascript', 'javascriptreact', 'typescript', 'typescriptreact',
+  'css', 'scss', 'less', 'html',
+  'json', 'jsonc', 'yaml', 'graphql', 'handlebars', 'svelte',
 }
+local has_biome = vim.fn.filereadable(vim.fn.getcwd() .. '/biome.json')
+local web_formatter = has_biome == 1 and 'biome' or 'prettier_d'
+for _, lang in ipairs(web_languages) do
+  set_formatter(lang, web_formatter)
+end
+
+-- enable efm formatting for all filetypes
+vim.lsp.config('efm', {
+  cmd = { 'efm-langserver' },
+  filetypes = vim.tbl_keys(vim.lsp.config.efm.settings.languages),
+  root_markers = { '.git' },
+  init_options = { documentFormatting = true, documentRangeFormatting = true },
+})
+vim.lsp.enable('efm')
+
+-- Code actions
+vim.pack.add({ 'https://github.com/Chaitanyabsprip/fastaction.nvim' })
+map('n', '<leader>ca', function() require('fastaction').code_action() end, { desc = 'Code Action' })
+--- @module 'fastaction'
+--- @type FastActionConfig
+require('fastaction').setup({ dismiss_keys = { 'j', 'k', '<c-c>', 'q', '<Esc>' } })
+
+-- rename in-place with the LSP and live feedback
+vim.pack.add({ 'https://github.com/saecki/live-rename.nvim' })
+map('n', 'cr', function() require('live-rename').rename() end, { desc = 'Rename' })
+map(
+  'n',
+  'cR',
+  function() require('live-rename').rename({ text = '', insert = true }) end,
+  { desc = 'Rename (replace)' }
+)
+require('live-rename').setup({ hl = { current = 'LiveRenameCurrent', others = 'LiveRenameOther' } })
+vim.pack.add({ 'https://github.com/navarasu/onedark.nvim' })
+require('onedark').setup({
+  highlights = {
+    LiveRenameCurrent = { fg = '$blue', bg = '$diff_change', fmt = '$none' },
+    LiveRenameOther = { fg = '$red', bg = '$diff_delete' },
+  },
+})

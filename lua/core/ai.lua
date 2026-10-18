@@ -1,19 +1,19 @@
+local map = require('tuque.utils').map
+
 vim.api.nvim_create_autocmd('InsertLeave', { callback = vim.snippet.stop })
 
-return {
-  -- autocomplete
-  {
-    enabled = os.getenv('NVIM_DEV') == nil,
-    'supermaven-inc/supermaven-nvim',
-    event = 'InsertEnter',
-    opts = {
-      keymaps = { accept_suggestion = '<M-i>' },
-      -- TODO: use onedark.nvim
-      color = { suggestion_color = '#585b70' },
-      log_level = 'off',
-    },
-    config = function(_, opts)
-      require('supermaven-nvim').setup(opts)
+-- autocomplete
+if os.getenv('NVIM_DEV') == nil then
+  vim.pack.add({ 'https://github.com/supermaven-inc/supermaven-nvim' })
+  vim.api.nvim_create_autocmd('InsertEnter', {
+    once = true,
+    callback = function()
+      require('supermaven-nvim').setup({
+        keymaps = { accept_suggestion = '<M-i>' },
+        -- TODO: use onedark.nvim
+        color = { suggestion_color = '#585b70' },
+        log_level = 'off',
+      })
 
       -- supermaven copies the whole buffer into a string on every cursor move (normal mode too) and
       -- every 25ms while polling for a completion, so reuse the last copy until the buffer changes
@@ -35,70 +35,52 @@ return {
         return prefix
       end
     end,
-  },
+  })
+end
 
-  {
-    'theprimeagen/99',
-    keys = {
-      { '<leader>9v', function() require('99').visual() end, mode = 'v', desc = 'AI Agent (Visual)' },
-      { '<leader>9x', function() require('99').stop_all_requests() end, desc = 'Cancel all AI Agents' },
-      { '<leader>9s', function() require('99').search() end, desc = 'AI Agent (Search)' },
-    },
-    config = function()
-      local _99 = require('99')
-      _99.setup({
-        provider = _99.Providers.ClaudeCodeProvider,
-        model = 'opus',
-      })
-    end,
-  },
+vim.pack.add({ 'https://github.com/theprimeagen/99' })
+map('v', '<leader>9v', function() require('99').visual() end, { desc = 'AI Agent (Visual)' })
+map('n', '<leader>9x', function() require('99').stop_all_requests() end, { desc = 'Cancel all AI Agents' })
+map('n', '<leader>9s', function() require('99').search() end, { desc = 'AI Agent (Search)' })
+local _99 = require('99')
+_99.setup({
+  provider = _99.Providers.ClaudeCodeProvider,
+  model = 'opus',
+})
 
-  {
-    'olimorris/codecompanion.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim', 'nvim-treesitter/nvim-treesitter' },
-    cmd = {
-      'CodeCompanion',
-      'CodeCompanionActions',
-      'CodeCompanionChat',
-      'CodeCompanionCLI',
-      'CodeCompanionCmd',
-      'CodeCompanionCodeReview',
-    },
-    keys = {
-      -- { '<C-a>', '<cmd>CodeCompanionActions<cr>', mode = { 'n', 'v' }, desc = 'Add to AI Chat' },
-      { 'ga', '<cmd>CodeCompanionChat Add<cr>', mode = 'v', desc = 'Add to AI Chat' },
-      { '<leader>ac', '<cmd>CodeCompanionChat<cr>', mode = 'n', desc = 'New Chat' },
-    },
-    opts = {
-      interactions = {
-        chat = { adapter = { name = 'openrouter', model = 'typesafe/jev-router' } },
-        inline = { adapter = { name = 'openrouter', model = 'typesafe/jev-router' } },
-        cmd = { adapter = { name = 'openrouter', model = 'typesafe/jev-router' } },
-      },
-      adapters = {
-        http = {
-          anthropic = function()
-            return require('codecompanion.adapters').extend(
-              'anthropic',
-              { env = { api_key = vim.g.ANTHROPIC_API_KEY } }
-            )
-          end,
-          openrouter = function()
-            return require('codecompanion.adapters').extend('openrouter', {
-              env = { api_key = vim.g.OPENROUTER_API_KEY },
-            })
-          end,
-        },
-        acp = {
-          claude_code = function()
-            return require('codecompanion.adapters').extend('claude_code', {
-              env = { CLAUDE_CODE_OAUTH_TOKEN = function() return os.getenv('CLAUDE_CODE_OAUTH_TOKEN') end },
-            })
-          end,
-        },
-      },
-      display = { chat = { intro_message = '', window = { layout = 'buffer' } } },
-    },
-    init = function() vim.cmd([[cab cc CodeCompanion]]) end,
+vim.pack.add({
+  'https://github.com/nvim-lua/plenary.nvim',
+  { src = 'https://github.com/nvim-treesitter/nvim-treesitter', version = 'main' },
+  'https://github.com/olimorris/codecompanion.nvim',
+})
+-- map({ 'n', 'v' }, '<C-a>', '<cmd>CodeCompanionActions<cr>', { desc = 'Add to AI Chat' })
+map('v', 'ga', '<cmd>CodeCompanionChat Add<cr>', { desc = 'Add to AI Chat' })
+map('n', '<leader>ac', '<cmd>CodeCompanionChat<cr>', { desc = 'New Chat' })
+vim.cmd([[cab cc CodeCompanion]])
+require('codecompanion').setup({
+  interactions = {
+    chat = { adapter = { name = 'openrouter', model = 'typesafe/jev-router' } },
+    inline = { adapter = { name = 'openrouter', model = 'typesafe/jev-router' } },
+    cmd = { adapter = { name = 'openrouter', model = 'typesafe/jev-router' } },
   },
-}
+  adapters = {
+    http = {
+      anthropic = function()
+        return require('codecompanion.adapters').extend('anthropic', { env = { api_key = vim.g.ANTHROPIC_API_KEY } })
+      end,
+      openrouter = function()
+        return require('codecompanion.adapters').extend('openrouter', {
+          env = { api_key = vim.g.OPENROUTER_API_KEY },
+        })
+      end,
+    },
+    acp = {
+      claude_code = function()
+        return require('codecompanion.adapters').extend('claude_code', {
+          env = { CLAUDE_CODE_OAUTH_TOKEN = function() return os.getenv('CLAUDE_CODE_OAUTH_TOKEN') end },
+        })
+      end,
+    },
+  },
+  display = { chat = { intro_message = '', window = { layout = 'buffer' } } },
+})

@@ -1,57 +1,37 @@
 vim.loader.enable()
 
-local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
-if not vim.uv.fs_stat(lazypath) then
-  -- bootstrap lazy.nvim
-  -- stylua: ignore
-  vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath })
-end
-vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
-
 if os.getenv('NVIM_LATENCY') ~= nil then require('config.autocmds.latency') end
+
+-- disable some rtp plugins
+vim.g.loaded_gzip = 1
+vim.g.loaded_matchit = 1
+vim.g.loaded_matchparen = 1
+vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_tarPlugin = 1
+vim.g.loaded_2html_plugin = 1 -- tohtml
+vim.g.loaded_tutor_mode_plugin = 1
+vim.g.loaded_zipPlugin = 1
 
 require('config.profiler')
 require('config.options')
 require('config.autocmds')
 require('tuque.buffer-history')
 
-local spec = {
-  { import = 'core' },
-  { import = 'langs' },
-}
-if os.getenv('NVIM_DEV') ~= nil or os.getenv('NVIM_PROFILE') ~= nil then table.insert(spec, { import = 'dev' }) end
+local function import(module)
+  for _, path in ipairs(vim.api.nvim_get_runtime_file('lua/' .. module .. '/*.lua', true)) do
+    require(module .. '.' .. vim.fn.fnamemodify(path, ':t:r'))
+  end
+end
 
-require('lazy').setup({
-  spec = spec,
-  defaults = {
-    lazy = false, -- whether to lazy load all plugins by default
-    version = false, -- default to latest git commit
-  },
-  rocks = { hererocks = false },
-  performance = {
-    rtp = {
-      -- disable some rtp plugins
-      disabled_plugins = {
-        'gzip',
-        'matchit',
-        'matchparen',
-        'netrwPlugin',
-        'tarPlugin',
-        'tohtml',
-        'tutor',
-        'zipPlugin',
-      },
-    },
-  },
-  -- don't automatically check for plugin updates
-  checker = { enabled = false },
-  -- don't reload when config changes
-  change_detection = { enabled = false },
-  -- any plugins with dev = true will attempt to load from this local path
-  dev = { path = '~/code/nvim', fallback = true },
-  -- don't load readmes as help entries
-  readme = { enabled = false },
-})
+-- flatten.nvim must load before any other plugin
+require('core.terminal')
+-- onedark.nvim must load before the other plugins, but after the modules extending its highlights
+require('core.lsp')
+require('core.ui')
+require('core.theme')
+import('core')
+import('langs')
+if os.getenv('NVIM_DEV') ~= nil or os.getenv('NVIM_PROFILE') ~= nil then import('dev') end
 
 require('config.keymaps')
 require('tuque.term')

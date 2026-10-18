@@ -138,8 +138,8 @@ map({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Save file' })
 map('v', '<', '<gv')
 map('v', '>', '>gv')
 
--- lazy
-map('n', '<leader>l', '<cmd>Lazy<cr>', { desc = 'Lazy' })
+-- vim.pack
+map('n', '<leader>l', function() vim.pack.update() end, { desc = 'Update plugins' })
 
 -- options
 map('n', '<leader>uw', '<cmd>set wrap!<cr>', { desc = 'Toggle line wrapping' })

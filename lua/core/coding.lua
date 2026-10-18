@@ -3,6 +3,7 @@ local map = require('tuque.utils').map
 vim.pack.add({
   'https://github.com/nvim-mini/mini.nvim',
   'https://github.com/Wansmer/treesj',
+  'https://github.com/stevearc/oil.nvim',
 })
 
 map('n', '<leader>bd', function()
@@ -30,3 +31,10 @@ require('mini.test').setup()
 
 map('n', 'gm', '<cmd>TSJToggle<cr>', { desc = 'Toggle Block' })
 require('treesj').setup({ use_default_keymap = false, max_join_length = 1000 })
+
+-- edit the filesystem like a buffer
+map('n', '<leader>e', '<cmd>Oil<cr>', { desc = 'Open parent directory' })
+map('n', '<leader>E', function() require('oil').open(vim.fn.getcwd()) end, { desc = 'Open working directory' })
+require('oil').setup({
+  keymaps = { q = 'actions.close' },
+})

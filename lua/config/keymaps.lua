@@ -43,8 +43,6 @@ map('t', '<S-Right>', '<C-\\><C-n><cmd>wincmd l<cr>', { noremap = true })
 
 local function switch_to_nth_previous_buffer(n)
   return function()
-    if vim.bo.filetype == 'blink-tree' then return end
-
     local prev_buf = require('tuque.buffer-history').get_nth_previous_buffer(n)
     if prev_buf ~= nil then
       vim.api.nvim_win_set_buf(0, prev_buf)

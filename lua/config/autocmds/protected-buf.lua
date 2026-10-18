@@ -1,4 +1,4 @@
-local protected_filetypes = { 'blink-tree', 'toggleterm' }
+local protected_filetypes = { 'toggleterm' }
 
 local function get_win_to_buf_map()
   local win_to_buf_map = {}

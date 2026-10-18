@@ -17,7 +17,6 @@ vim.api.nvim_create_autocmd('FileType', {
     'neotest-output-panel',
     'toggleterm',
     'neo-tree',
-    'blink-tree',
     'gitsigns-blame',
     'Trouble',
   },

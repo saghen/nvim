@@ -105,14 +105,14 @@ require('telescope').setup({
     preview_title = false, -- disable
     results_title = false, -- disable
 
-    -- open in the first window that isnt the tree or incline
+    -- open in the first window that isnt incline
     get_selection_window = function()
       local wins = vim.api.nvim_list_wins()
       table.insert(wins, 1, vim.api.nvim_get_current_win())
       for _, win in ipairs(wins) do
         local buf = vim.api.nvim_win_get_buf(win)
         local filetype = vim.bo[buf].filetype
-        if filetype ~= 'blink-tree' and filetype ~= 'incline' then return win end
+        if filetype ~= 'incline' then return win end
       end
       return 0
     end,

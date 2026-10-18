@@ -180,25 +180,13 @@ local function load_session()
   local ok, err = pcall(vim.cmd, 'silent source ' .. vim.fn.fnameescape(path))
   vim.o.swapfile = swapfile
   if not ok then return vim.notify('Failed to load session: ' .. err, vim.log.levels.ERROR) end
-
-  -- todo: open blink tree if it was previously open
-  -- open blink tree on wide terminals (disabled in dev environment). the server starts headless, so
-  -- wait for a UI to attach before checking the width
-  if os.getenv('NVIM_DEV') == nil then
-    vim.api.nvim_create_autocmd('UIEnter', {
-      once = true,
-      callback = function()
-        if vim.o.columns >= 240 then vim.cmd('BlinkTree open silent') end
-      end,
-    })
-  end
 end
 
 local function save_session()
   local path = session_path()
   if path == nil then return end
 
-  -- windows of 'nofile' buffers (e.g. blink tree) and terminals are skipped, since they're missing
+  -- windows of 'nofile' buffers and terminals are skipped, since they're missing
   -- from 'sessionoptions'
   vim.fn.mkdir(sessions_dir, 'p')
   vim.cmd('mksession! ' .. vim.fn.fnameescape(path))

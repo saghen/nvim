@@ -80,10 +80,6 @@ map('n', '<leader>m/', function() require('blink.select').show('recent-searches'
 map('n', '<leader>ma', function() require('blink.select').show('code-actions') end, { desc = 'Select code action' })
 map('n', '<leader>mo', function() require('blink.select').show('smart-open') end, { desc = 'Select code action' })
 
--- tree
-map('n', '<leader>E', '<cmd>BlinkTree reveal<cr>', { desc = 'Reveal current file in tree' })
-map('n', '<leader>e', '<cmd>BlinkTree toggle-focus<cr>', { desc = 'Toggle file tree window or focus' })
-
 require('blink').setup({
   chartoggle = { enabled = true },
   select = {
@@ -92,5 +88,4 @@ require('blink').setup({
       selection = { 'm', 'n', 'e', 'i', 'a', 'r', 's', 't' },
     },
   },
-  tree = { enabled = true },
 })

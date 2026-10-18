@@ -89,18 +89,6 @@ require('onedark').setup({
     BlinkCmpScrollBarThumb = { bg = '$grey' },
     BlinkCmpScrollBarGutter = { bg = '$bg1' },
 
-    BlinkTreeNormal = { bg = '$bg_d' },
-    BlinkTreeNormalNC = { bg = '$bg_d' },
-    BlinkTreeIndent = { fg = '$bg3' },
-    BlinkTreeModified = { fg = '$yellow' },
-    BlinkTreeGitStaged = { fg = '$green' },
-    BlinkTreeGitModified = { fg = '$yellow' },
-    BlinkTreeGitAdded = { fg = '$blue' },
-    BlinkTreeGitConflict = { fg = '$red' },
-    BlinkTreeGitUntracked = { fg = '$red' },
-    BlinkTreeFlagCut = { fg = '$green', fmt = 'italic' },
-    BlinkTreeFlagCopy = { fg = '$blue', fmt = 'italic' },
-
     BlinkIndent = { fg = '$bg1' },
     BlinkPairsUnmatched = { fg = '$red' },
 

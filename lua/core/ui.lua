@@ -24,7 +24,6 @@ if os.getenv('NVIM_DEV') == nil then
     spec = {
       {
         mode = 'n',
-        { '<leader>a', group = 'AI' },
         { '<leader>b', group = 'Buffers' },
         { '<leader>c', group = 'Coding' },
         { '<leader>f', group = 'Files' },

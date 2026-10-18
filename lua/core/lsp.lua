@@ -2,7 +2,6 @@ local map = require('tuque.utils').map
 
 vim.pack.add({
   'https://github.com/neovim/nvim-lspconfig',
-  'https://github.com/creativenull/efmls-configs-nvim',
   'https://github.com/Chaitanyabsprip/fastaction.nvim',
   'https://github.com/saecki/live-rename.nvim',
 })
@@ -68,9 +67,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     if not vim.api.nvim_buf_is_valid(args.buf) or vim.bo[args.buf].buftype ~= '' then return end
     if disable_autoformat_filetypes[vim.bo[args.buf].filetype] then return end
     vim.lsp.buf.format({
-      filter = function(client)
-        return vim.tbl_contains({ 'efm', 'terraformls', 'rust-analyzer', 'nil_ls' }, client.name)
-      end,
+      filter = function(client) return vim.tbl_contains({ 'efm', 'rust-analyzer', 'nil_ls' }, client.name) end,
     })
   end,
 })
@@ -83,10 +80,32 @@ map('n', '<leader>uf', function()
   local filetype = vim.bo.filetype
   disable_autoformat_filetypes[filetype] = not disable_autoformat_filetypes[filetype]
 end, { desc = 'Toggle format on save' })
+local formatters = {
+  ruff = {
+    formatCommand = "ruff format --no-cache --stdin-filename '${INPUT}'",
+    formatStdin = true,
+    rootMarkers = { 'pyproject.toml', 'setup.py', 'requirements.txt', 'ruff.toml' },
+  },
+  stylua = {
+    formatCommand = "stylua --color Never ${--range-start:charStart} ${--range-end:charEnd} --stdin-filepath '${INPUT}' -",
+    formatCanRange = true,
+    formatStdin = true,
+    rootMarkers = { 'stylua.toml', '.stylua.toml' },
+  },
+  prettier_d = {
+    formatCommand = "prettierd '${INPUT}' ${--range-start=charStart} ${--range-end=charEnd} --config-precedence=prefer-file",
+    formatCanRange = true,
+    formatStdin = true,
+    -- stylua: ignore
+    rootMarkers = {
+      '.prettierrc', '.prettierrc.json', '.prettierrc.js', '.prettierrc.yml', '.prettierrc.yaml', '.prettierrc.json5',
+      '.prettierrc.mjs', '.prettierrc.cjs', '.prettierrc.toml', 'prettier.config.js', 'prettier.config.cjs',
+      'prettier.config.mjs',
+    },
+  },
+}
 local set_formatter = function(lang, formatter)
-  vim.lsp.config('efm', {
-    settings = { languages = { [lang] = { require('efmls-configs.formatters.' .. formatter) } } },
-  })
+  vim.lsp.config('efm', { settings = { languages = { [lang] = { formatters[formatter] } } } })
 end
 
 set_formatter('python', 'ruff')

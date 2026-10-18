@@ -1,7 +1,5 @@
 vim.loader.enable()
 
-if os.getenv('NVIM_LATENCY') ~= nil then require('config.autocmds.latency') end
-
 -- disable some rtp plugins
 vim.g.loaded_gzip = 1
 vim.g.loaded_matchit = 1

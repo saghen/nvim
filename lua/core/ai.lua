@@ -1,10 +1,6 @@
 local map = require('tuque.utils').map
 
-vim.pack.add({
-  'https://github.com/theprimeagen/99',
-  'https://github.com/nvim-lua/plenary.nvim',
-  'https://github.com/olimorris/codecompanion.nvim',
-})
+vim.pack.add({ 'https://github.com/theprimeagen/99' })
 
 vim.api.nvim_create_autocmd('InsertLeave', { callback = vim.snippet.stop })
 
@@ -46,36 +42,4 @@ local _99 = require('99')
 _99.setup({
   provider = _99.Providers.ClaudeCodeProvider,
   model = 'opus',
-})
-
--- map({ 'n', 'v' }, '<C-a>', '<cmd>CodeCompanionActions<cr>', { desc = 'Add to AI Chat' })
-map('v', 'ga', '<cmd>CodeCompanionChat Add<cr>', { desc = 'Add to AI Chat' })
-map('n', '<leader>ac', '<cmd>CodeCompanionChat<cr>', { desc = 'New Chat' })
-vim.cmd([[cab cc CodeCompanion]])
-require('codecompanion').setup({
-  interactions = {
-    chat = { adapter = { name = 'openrouter', model = 'typesafe/jev-router' } },
-    inline = { adapter = { name = 'openrouter', model = 'typesafe/jev-router' } },
-    cmd = { adapter = { name = 'openrouter', model = 'typesafe/jev-router' } },
-  },
-  adapters = {
-    http = {
-      anthropic = function()
-        return require('codecompanion.adapters').extend('anthropic', { env = { api_key = vim.g.ANTHROPIC_API_KEY } })
-      end,
-      openrouter = function()
-        return require('codecompanion.adapters').extend('openrouter', {
-          env = { api_key = vim.g.OPENROUTER_API_KEY },
-        })
-      end,
-    },
-    acp = {
-      claude_code = function()
-        return require('codecompanion.adapters').extend('claude_code', {
-          env = { CLAUDE_CODE_OAUTH_TOKEN = function() return os.getenv('CLAUDE_CODE_OAUTH_TOKEN') end },
-        })
-      end,
-    },
-  },
-  display = { chat = { intro_message = '', window = { layout = 'buffer' } } },
 })

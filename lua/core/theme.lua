@@ -9,7 +9,7 @@ require('onedark').setup({
     bg2 = vim.g.colors.surface_0,
     bg3 = vim.g.colors.surface_1,
     bg_d = vim.g.colors.mantle,
-    grey = vim.g.surface_2,
+    grey = vim.g.colors.surface_2,
     -- todo: is this one right?
     light_grey = vim.g.colors.overlay_2,
 

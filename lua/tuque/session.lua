@@ -102,63 +102,40 @@ function M.pick_project()
     recency_rank[project_folder] = rank
   end
 
-  local pickers = require('telescope.pickers')
-  local finders = require('telescope.finders')
-  local conf = require('telescope.config').values
-  local actions = require('telescope.actions')
-  local action_state = require('telescope.actions.state')
-  local entry_display = require('telescope.pickers.entry_display')
+  -- open projects first, then the current one, then the rest, each by recency
+  local function group(project_folder)
+    if project_folder == current then return 1 end
+    return vim.list_contains(open_projects, project_folder) and 0 or 2
+  end
+  local projects = list_projects()
+  table.sort(projects, function(a, b)
+    if group(a) ~= group(b) then return group(a) < group(b) end
+    local rank_a, rank_b = recency_rank[a] or math.huge, recency_rank[b] or math.huge
+    if rank_a ~= rank_b then return rank_a < rank_b end
+    return a < b
+  end)
 
-  local displayer = entry_display.create({
-    separator = ' ',
-    items = { {}, { width = 30 }, { remaining = true } },
+  local function search_text(project_folder) return vim.fn.fnamemodify(project_folder, ':t') .. ' ' .. project_folder end
+
+  require('minibuffer').select({
+    prompt = 'Projects: ',
+    fetch_fn = function(_, cb) cb(projects) end,
+    -- matchfuzzy keeps the order above for equal scores
+    filter_fn = function(ctx)
+      if ctx.input == '' then return ctx.items end
+      return vim.fn.matchfuzzy(ctx.items, ctx.input, { text_cb = search_text })
+    end,
+    format_fn = function(project_folder)
+      local icon, icon_hl = require('mini.icons').get('directory', project_folder)
+      return {
+        { text = ({ '•', '∘', ' ' })[group(project_folder) + 1] .. ' ' },
+        { text = icon .. ' ', hl = icon_hl },
+        { text = ('%-30s '):format(vim.fn.fnamemodify(project_folder, ':t')), hl = 'Normal' },
+        { text = project_folder, hl = 'Comment' },
+      }
+    end,
+    on_accept = function(selection) open_project(selection[1].item) end,
   })
-  local entry_maker = function(project_folder)
-    local rank = recency_rank[project_folder]
-    return {
-      display = function(entry)
-        return displayer({
-          entry.is_current and '∘' or entry.is_open and '•' or ' ',
-          entry.name,
-          { entry.value, 'Comment' },
-        })
-      end,
-      name = vim.fn.fnamemodify(project_folder, ':t'),
-      value = project_folder,
-      ordinal = project_folder,
-      is_open = vim.list_contains(open_projects, project_folder),
-      is_current = project_folder == current,
-      -- tiny bonus to break ties in favour of recently used projects
-      recency_score = rank and -(50 - rank) / 500000 or 0,
-    }
-  end
-
-  local sorter = conf.generic_sorter({})
-  local orig_scoring_function = sorter.scoring_function
-  sorter.scoring_function = function(self, prompt, _, entry)
-    if #prompt == 0 then return entry.recency_score + (entry.is_current and 0.5 or entry.is_open and 0 or 1) end
-
-    local score = orig_scoring_function(self, prompt, entry.name .. ' ' .. entry.value)
-    return math.max(-1, entry.recency_score + (entry.is_open and score - 0.005 or score))
-  end
-
-  pickers
-    .new({}, {
-      prompt_title = 'Projects',
-      finder = finders.new_table({
-        results = list_projects(),
-        entry_maker = entry_maker,
-      }),
-      sorter = sorter,
-      attach_mappings = function(prompt_bufnr)
-        actions.select_default:replace(function()
-          actions.close(prompt_bufnr)
-          open_project(action_state.get_selected_entry().value)
-        end)
-        return true
-      end,
-    })
-    :find()
 end
 
 -- only project servers have sessions, so a plain `nvim` (e.g. opened in a terminal) can't clobber

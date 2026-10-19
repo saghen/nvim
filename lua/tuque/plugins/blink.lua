@@ -18,8 +18,5 @@ require('blink.cmp').setup({
   },
   appearance = { nerd_font_variant = 'normal' },
   signature = { enabled = true },
-  cmdline = {
-    keymap = { preset = 'inherit', ['<Tab>'] = { 'show', 'accept', 'fallback' } },
-    completion = { menu = { auto_show = true }, ghost_text = { enabled = false } },
-  },
+  cmdline = { enabled = false },
 })

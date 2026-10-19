@@ -12,15 +12,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
       opts.buffer = ev.buf
       vim.keymap.set(mode, key, command, opts)
     end
-    local telescope = require('telescope.builtin')
 
     map('<leader>cL', '<cmd>LspInfo<cr>', { desc = 'Lsp Info' })
-    map('gd', function() telescope.lsp_definitions({ reuse_win = true }) end, { desc = 'Goto Definition' })
-    map('gr', '<cmd>Telescope lsp_references<cr>', { desc = 'References' })
+    map('gd', vim.lsp.buf.definition, { desc = 'Goto Definition' })
+    map('gr', vim.lsp.buf.references, { desc = 'References' })
     map('gD', vim.lsp.buf.declaration, { desc = 'Goto Declaration' })
-    map('gi', function() telescope.lsp_implementations({ reuse_win = true }) end, { desc = 'Goto Implementation' })
+    map('gi', vim.lsp.buf.implementation, { desc = 'Goto Implementation' })
     map('gI', 'gi', { noremap = true, desc = 'Go to last insert' })
-    map('gy', function() telescope.lsp_type_definitions({ reuse_win = true }) end, { desc = 'Goto Type Definition' })
+    map('gy', vim.lsp.buf.type_definition, { desc = 'Goto Type Definition' })
     map('K', vim.lsp.buf.hover, { desc = 'Hover' })
     map('gK', vim.lsp.buf.signature_help, { desc = 'Signature Help' })
     map('<c-k>', vim.lsp.buf.signature_help, { mode = 'i', desc = 'Signature Help' })

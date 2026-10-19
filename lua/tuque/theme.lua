@@ -279,16 +279,6 @@ local hl = {
   MiniIconsRed = { fg = c.red },
   MiniIconsYellow = { fg = c.yellow },
 
-  TelescopeBorder = { fg = c.red },
-  TelescopePromptBorder = { fg = c.grey },
-  TelescopeResultsBorder = { fg = c.grey },
-  TelescopePreviewBorder = { fg = c.grey },
-  TelescopePromptTitle = { fg = c.blue },
-  TelescopePromptPrefix = { fg = c.green },
-  TelescopeMatching = { fg = c.orange, bold = true },
-  TelescopeSelection = { bg = c.bg2 },
-  TelescopeSelectionCaret = { fg = c.yellow },
-
   WhichKey = { fg = c.purple },
   WhichKeyBorder = { fg = c.bg_d, bg = c.bg_d },
   WhichKeyTitle = { fg = c.blue, bg = c.bg_d },

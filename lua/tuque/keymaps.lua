@@ -43,8 +43,6 @@ map('t', '<S-Right>', '<C-\\><C-n><cmd>wincmd l<cr>', { noremap = true })
 
 local function switch_to_nth_previous_buffer(n)
   return function()
-    if vim.bo.filetype == 'blink-tree' then return end
-
     local prev_buf = require('tuque.buffer-history').get_nth_previous_buffer(n)
     if prev_buf ~= nil then
       vim.api.nvim_win_set_buf(0, prev_buf)
@@ -124,11 +122,9 @@ map({ 'x', 'o' }, 'N', "'nN'[v:searchforward]", { expr = true, desc = 'Prev sear
 local session = require('tuque.session')
 if session.is_project_server() then
   map('n', '<leader>-', session.pick_project, { desc = 'Projects' })
-  map('n', '<leader>qq', function() session.quit_project(false) end, { desc = 'Quit project' })
-  map('n', '<leader>qQ', function() session.quit_project(true) end, { desc = 'Force quit project' })
+  map('n', '<C-q>', function() session.quit_project(false) end, { desc = 'Quit project' })
 else
-  map('n', '<leader>qq', '<cmd>qa<cr>', { desc = 'Quit all' })
-  map('n', '<leader>qQ', '<cmd>qa!<cr>', { desc = 'Force quit all' })
+  map('n', '<C-q>', '<cmd>qa<cr>', { desc = 'Quit all' })
 end
 
 -- ctrl based commands
@@ -137,9 +133,6 @@ map({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Save file' })
 -- better indenting
 map('v', '<', '<gv')
 map('v', '>', '>gv')
-
--- lazy
-map('n', '<leader>l', '<cmd>Lazy<cr>', { desc = 'Lazy' })
 
 -- options
 map('n', '<leader>uw', '<cmd>set wrap!<cr>', { desc = 'Toggle line wrapping' })
@@ -164,8 +157,8 @@ map('n', '[w', diagnostic_goto(-1, 'WARN'), { desc = 'Prev Warning' })
 -- windows
 map('n', '<leader>ww', '<C-W>p', { desc = 'Other window' })
 map('n', '<leader>wd', '<C-W>c', { desc = 'Delete window' })
-map('n', '<leader>wh', '<C-W>s<C-W>j', { desc = 'Split window below' })
-map('n', '<leader>wv', '<C-W>v<C-W>l', { desc = 'Split window right' })
+map('n', '<leader>wh', '<C-W>s', { desc = 'Split window below' })
+map('n', '<leader>wv', '<C-W>v', { desc = 'Split window right' })
 
 -- clipboard
 map('v', '<leader>p', '"+p', { desc = 'Paste from clipboard' })
@@ -176,72 +169,14 @@ map('v', '<leader>y', '"+y', { desc = 'Yank to clipboard' })
 map('v', '<leader>Y', function()
   local curl = require('plenary.curl')
   local strings = require('plenary.strings')
-  local filetype_to_extensions = {
-    lua = 'lua',
-    typescript = 'ts',
-    javascript = 'js',
-    typescriptreact = 'tsx',
-    javascriptreact = 'jsx',
-    markdown = 'md',
-    json = 'json',
-    yaml = 'yaml',
-    toml = 'toml',
-    html = 'html',
-    css = 'css',
-    scss = 'scss',
-    sass = 'sass',
-    less = 'less',
-    graphql = 'graphql',
-    sql = 'sql',
-    vim = 'vim',
-    sh = 'sh',
-    fish = 'fish',
-    zsh = 'zsh',
-    bash = 'bash',
-    python = 'py',
-    rust = 'rs',
-    go = 'go',
-    java = 'java',
-    c = 'c',
-    cpp = 'cpp',
-    tsx = 'tsx',
-    jsx = 'jsx',
-    php = 'php',
-    ruby = 'rb',
-    r = 'r',
-    ocaml = 'ml',
-    haskell = 'hs',
-    scala = 'scala',
-    clojure = 'clj',
-    elixir = 'ex',
-    erlang = 'erl',
-    dart = 'dart',
-    nim = 'nim',
-    purescript = 'purs',
-    reason = 're',
-    svelte = 'svelte',
-    vue = 'vue',
-    crystal = 'cr',
-    zig = 'zig',
-    julia = 'jl',
-    racket = 'rkt',
-    scheme = 'scm',
-    lisp = 'lisp',
-    fennel = 'fnl',
-    moonscript = 'moon',
-    nix = 'nix',
-  }
 
   vim.cmd.normal({ '"zy', bang = true })
   local selected_text = strings.dedent(vim.fn.getreg('z'))
 
-  local response = curl.post('https://paste.super.fish/', {
-    method = 'POST',
-    body = selected_text,
-  })
+  local response = curl.post('https://paste.super.fish/', { method = 'POST', body = selected_text })
 
   local redirect_url = response.body
-  local extension = filetype_to_extensions[vim.bo.filetype] or 'txt'
+  local extension = vim.fn.expand('%:e')
   if redirect_url then
     vim.fn.setreg('+', 'https://paste.super.fish' .. redirect_url .. '.' .. extension)
     vim.notify('Copied to clipboard and system clipboard')

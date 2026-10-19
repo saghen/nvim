@@ -31,7 +31,9 @@ local function add_to_history(buf)
   trim_and_filter_dead()
 end
 
+local group = vim.api.nvim_create_augroup('tuque.buffer-history', {})
 vim.api.nvim_create_autocmd('BufEnter', {
+  group = group,
   callback = function(evt)
     vim.schedule(function() add_to_history(evt.buf) end)
   end,

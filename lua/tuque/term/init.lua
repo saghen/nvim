@@ -8,8 +8,11 @@ local Manager = {
   term_history = {},
 }
 
+local group = vim.api.nvim_create_augroup('tuque.term', {})
+
 -- Keep track of terminal history
 vim.api.nvim_create_autocmd('BufEnter', {
+  group = group,
   callback = vim.schedule_wrap(function(ev)
     for _, term in ipairs(Manager.get_terms()) do
       if term.buf == ev.buf then
@@ -32,6 +35,7 @@ vim.api.nvim_create_autocmd('BufEnter', {
 
 -- Update left side padding when a buffer enters a window
 vim.api.nvim_create_autocmd('BufWinEnter', {
+  group = group,
   callback = function()
     for _, term in ipairs(Manager.get_terms()) do
       term:update_padding()
@@ -42,6 +46,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
 -- Run on BufLeave as well since ModeChanged doesn't fire when switching from terminal buffer
 -- to another buffer, even though the mode changes
 vim.api.nvim_create_autocmd('ModeChanged', {
+  group = group,
   callback = function()
     for _, term in ipairs(Manager.get_terms()) do
       term:update_cursorline_highlight()
@@ -60,6 +65,7 @@ end
 
 -- Replace terminal buffer with last buffer on exit
 vim.api.nvim_create_autocmd('TermClose', {
+  group = group,
   callback = function(args)
     local buf = args.buf
     if not vim.api.nvim_buf_is_valid(buf) then return end

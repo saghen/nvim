@@ -1,11 +1,13 @@
 local buffer_history = {}
 local history_length = 5
 
+--- @return boolean
+local function include_buffer(buf)
+  return vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted and vim.bo[buf].buftype == ''
+end
+
 local function trim_and_filter_dead()
-  buffer_history = vim.tbl_filter(
-    function(buf) return vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted and vim.bo[buf].buftype == '' end,
-    buffer_history
-  )
+  buffer_history = vim.tbl_filter(include_buffer, buffer_history)
 
   while #buffer_history > history_length do
     table.remove(buffer_history, history_length + 1)
@@ -14,10 +16,7 @@ end
 
 --- @param buf number
 local function add_to_history(buf)
-  if not vim.api.nvim_buf_is_valid(buf) then return end
-
-  -- Ignore special buffers
-  if vim.bo[buf].buftype ~= '' or vim.bo[buf].buflisted == false then return end
+  if not include_buffer(buf) then return end
 
   -- Remove the buffer if it's already in history
   for i, v in ipairs(buffer_history) do
@@ -31,9 +30,8 @@ local function add_to_history(buf)
   trim_and_filter_dead()
 end
 
-local group = vim.api.nvim_create_augroup('tuque.buffer-history', {})
 vim.api.nvim_create_autocmd('BufEnter', {
-  group = group,
+  group = vim.api.nvim_create_augroup('tuque.buffer-history', {}),
   callback = function(evt)
     vim.schedule(function() add_to_history(evt.buf) end)
   end,

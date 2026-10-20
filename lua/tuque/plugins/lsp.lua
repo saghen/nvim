@@ -1,62 +1,104 @@
 local map = require('tuque.utils').map
 
+vim.pack.add({
+  'https://github.com/neovim/nvim-lspconfig',
+  'https://github.com/Chaitanyabsprip/fastaction.nvim',
+  'https://github.com/saecki/live-rename.nvim',
+  { src = 'https://github.com/saecki/crates.nvim', version = 'stable' },
+})
+
 local group = vim.api.nvim_create_augroup('tuque.lsp', {})
+
+---------------
+-- servers
+
+vim.lsp.config('emmylua_ls', {
+  settings = {
+    emmylua = {
+      runtime = {
+        version = 'LuaJIT',
+        requirePattern = { 'lua/?.lua', 'lua/?/init.lua', '?/lua/?.lua', '?/lua/?/init.lua' },
+      },
+      workspace = { ignoreGlobs = { '**/*_spec.lua', '**/test_*.lua', '**/mini.nvim/**' } },
+    },
+  },
+  -- resolve the runtime paths on start, since plugins added after this file aren't on the rtp yet
+  before_init = function(_, config)
+    config.settings.emmylua.workspace.workspaceRoots = vim.api.nvim_list_runtime_paths()
+  end,
+})
+vim.lsp.config('rust_analyzer', {
+  settings = {
+    ['rust-analyzer'] = {
+      -- https://github.com/napi-rs/napi-rs/issues/944#issuecomment-1013002760
+      procMacro = { ignored = { ['napi-derive'] = { 'napi' } } },
+      diagnostics = { disabled = { 'proc-macro-disabled' } },
+      -- build in sub directory to prevent locking
+      cargo = { targetDir = true },
+    },
+  },
+})
+
+vim.lsp.enable({ 'efm', 'emmylua_ls', 'gopls', 'nil_ls', 'rust_analyzer', 'tsc', 'ty' })
+
+-- cargo.toml lsp
+require('crates').setup({
+  lsp = { enabled = true, actions = true, completion = true, hover = true },
+  completion = { crates = { enabled = true } },
+})
+
+---------------
+-- keymaps
+
+-- drop the default gr* mappings, so that gr (references) doesn't wait for the next key
+for _, lhs in ipairs({ 'grn', 'grr', 'gra', 'gri', 'grt', 'grx' }) do
+  pcall(vim.keymap.del, 'n', lhs)
+end
+pcall(vim.keymap.del, 'x', 'gra')
+
+local fastaction = require('fastaction')
+fastaction.setup({ dismiss_keys = { 'j', 'k', '<c-c>', 'q', '<Esc>' } })
+
+-- rename in-place with the LSP and live feedback
+local live_rename = require('live-rename')
+live_rename.setup({ hl = { current = 'LiveRenameCurrent', others = 'LiveRenameOther' } })
 
 -- map the following keys after the lsp attaches to the buffer
 vim.api.nvim_create_autocmd('LspAttach', {
   group = group,
   callback = function(ev)
-    local function map(key, command, opts)
-      local mode = opts.mode or 'n'
-      opts.mode = nil
-      opts.buffer = ev.buf
-      vim.keymap.set(mode, key, command, opts)
-    end
+    local function bmap(mode, lhs, rhs, opts) map(mode, lhs, rhs, vim.tbl_extend('force', opts, { buffer = ev.buf })) end
 
-    map('<leader>cL', '<cmd>LspInfo<cr>', { desc = 'Lsp Info' })
-    map('gd', vim.lsp.buf.definition, { desc = 'Goto Definition' })
-    map('gr', vim.lsp.buf.references, { desc = 'References' })
-    map('gD', vim.lsp.buf.declaration, { desc = 'Goto Declaration' })
-    map('gi', vim.lsp.buf.implementation, { desc = 'Goto Implementation' })
-    map('gI', 'gi', { noremap = true, desc = 'Go to last insert' })
-    map('gy', vim.lsp.buf.type_definition, { desc = 'Goto Type Definition' })
-    map('K', vim.lsp.buf.hover, { desc = 'Hover' })
-    map('gK', vim.lsp.buf.signature_help, { desc = 'Signature Help' })
-    map('<c-k>', vim.lsp.buf.signature_help, { mode = 'i', desc = 'Signature Help' })
-    map('<leader>cA', vim.lsp.buf.code_action, { desc = 'Code Action' })
+    bmap('n', 'gd', vim.lsp.buf.definition, { desc = 'Goto Definition' })
+    bmap('n', 'gr', vim.lsp.buf.references, { desc = 'References' })
+    bmap('n', 'gD', vim.lsp.buf.declaration, { desc = 'Goto Declaration' })
+    bmap('n', 'gi', vim.lsp.buf.implementation, { desc = 'Goto Implementation' })
+    bmap('n', 'gI', 'gi', { desc = 'Go to last insert' })
+    bmap('n', 'gy', vim.lsp.buf.type_definition, { desc = 'Goto Type Definition' })
+    bmap('n', 'K', vim.lsp.buf.hover, { desc = 'Hover' })
+    -- visual mode passes the selection as the range
+    bmap({ 'n', 'x' }, 'ga', function() fastaction.code_action() end, { desc = 'Code Action' })
+    -- normal mode only, so that cgn/cgN keep working
+    bmap('n', 'gn', function() live_rename.rename() end, { desc = 'Rename' })
+    bmap('n', 'gN', function() live_rename.rename({ text = '', insert = true }) end, { desc = 'Rename (replace)' })
   end,
 })
-
--- code actions
-local fastaction = require('fastaction')
-map('n', '<leader>ca', function() fastaction.code_action() end, { desc = 'Code Action' })
-fastaction.setup({ dismiss_keys = { 'j', 'k', '<c-c>', 'q', '<Esc>' } })
-
--- rename in-place with the LSP and live feedback
-local live_rename = require('live-rename')
-map('n', 'cr', function() live_rename.rename() end, { desc = 'Rename' })
-map('n', 'cR', function() live_rename.rename({ text = '', insert = true }) end, { desc = 'Rename (replace)' })
-live_rename.setup({ hl = { current = 'LiveRenameCurrent', others = 'LiveRenameOther' } })
 
 -- disable diagnostics in the sign column
 vim.diagnostic.config({ signs = false })
 
 -- toggle diagnostics underline
-vim.keymap.set(
+map(
   'n',
   '<leader>ud',
   function() vim.diagnostic.config({ underline = not vim.diagnostic.config().underline }) end,
-  { desc = 'Toggle diagnostic underline', silent = true, noremap = true }
+  { desc = 'Toggle diagnostic underline' }
 )
 
 ---------------
 -- formatting
 
-map({ 'n', 'v' }, '<leader>cf', function()
-  vim.lsp.buf.format({
-    filter = function(client) return vim.tbl_contains({ 'efm', 'rust-analyzer', 'nil_ls' }, client.name) end,
-  })
-end, { desc = 'Format' })
+local function format_filter(client) return vim.list_contains({ 'efm', 'rust_analyzer' }, client.name) end
 
 local disable_autoformat_filetypes = {}
 map('n', '<leader>uf', function()
@@ -67,13 +109,13 @@ end, { desc = 'Toggle format on save' })
 vim.api.nvim_create_autocmd('BufWritePre', {
   group = group,
   desc = 'Format on save',
-  pattern = '*',
   callback = function(args)
-    if not vim.api.nvim_buf_is_valid(args.buf) or vim.bo[args.buf].buftype ~= '' then return end
+    if vim.bo[args.buf].buftype ~= '' then return end
     if disable_autoformat_filetypes[vim.bo[args.buf].filetype] then return end
-    vim.lsp.buf.format({
-      filter = function(client) return vim.tbl_contains({ 'efm', 'rust-analyzer', 'nil_ls' }, client.name) end,
-    })
+    -- otherwise format() warns on every save of a filetype without a formatter
+    local clients = vim.lsp.get_clients({ bufnr = args.buf, method = 'textDocument/formatting' })
+    if #vim.tbl_filter(format_filter, clients) == 0 then return end
+    vim.lsp.buf.format({ bufnr = args.buf, filter = format_filter })
   end,
 })
 
@@ -121,33 +163,6 @@ end
 
 -- enable efm formatting for all filetypes
 vim.lsp.config('efm', {
-  cmd = { 'efm-langserver' },
   filetypes = vim.tbl_keys(vim.lsp.config.efm.settings.languages),
-  root_markers = { '.git' },
   init_options = { documentFormatting = true, documentRangeFormatting = true },
 })
-
----------------
--- servers
-
-vim.lsp.config('emmylua_ls', {
-  settings = {
-    emmylua = {
-      runtime = {
-        version = 'LuaJIT',
-        requirePattern = { 'lua/?.lua', 'lua/?/init.lua', '?/lua/?.lua', '?/lua/?/init.lua' },
-      },
-      workspace = {
-        ignoreGlobs = { '**/*_spec.lua', '**/test_*.lua', '**/mini.nvim/**' },
-      },
-    },
-  },
-  -- resolve the runtime paths on start, since plugins added after this file aren't on the rtp yet
-  before_init = function(_, config)
-    config.settings.emmylua.workspace.workspaceRoots = vim.api.nvim_list_runtime_paths()
-  end,
-})
-vim.lsp.config('nil_ls', { settings = { ['nil'] = { formatting = { command = { 'nixfmt' } } } } })
-
--- rust-analyzer is started by rustaceanvim
-vim.lsp.enable({ 'efm', 'emmylua_ls', 'gopls', 'nil_ls', 'tsc', 'ty' })

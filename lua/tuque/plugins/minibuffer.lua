@@ -1,22 +1,33 @@
 local map = require('tuque.utils').map
 
-vim.pack.add({ 'https://github.com/simifalaye/minibuffer.nvim' })
+vim.g.minibuffer = { dynamic_window_resize = false, cmd = { max_height = 10 } } -- overlay the windows instead of resizing them
+require('tuque.utils').pack_add_dev({ 'https://github.com/saghen/minibuffer.nvim' })
 
 vim.ui.select = require('minibuffer.builtin.ui_select')
 vim.ui.input = require('minibuffer.builtin.ui_input')
 
 local history = require('minibuffer.builtin.history')
 local list = require('minibuffer.builtin.list')
+local function live_grep()
+  -- https://github.com/kantord/zeitgrep: ripgrep but sorted by git history
+  -- `cargo install zeitgrep`
+  require('minibuffer.builtin.live-grep')({
+    rg_opts = { 'zg', '--column', '--color=never', '--smart-case' },
+    max_height = 12,
+    debounce = false,
+  })
+end
 
-map('n', ',', require('minibuffer.builtin.live-grep'), { desc = 'Live grep' })
+map('n', ',', live_grep, { desc = 'Live grep' })
+map('n', '<tab>', require('minibuffer.builtin.files'), { desc = 'Files' })
+map('n', '<C-i>', '<C-i>', { desc = 'Jump forward' }) -- <tab> also applies to <C-i> unless both are mapped
 map('n', '<leader>r', function() require('minibuffer').resume(true) end, { desc = 'Resume last search' })
 map('n', "<leader>'", require('minibuffer.builtin.marks'), { desc = 'Marks' })
 map('n', '<leader>:', function() history({ type = 'cmd' }) end, { desc = 'Command history' })
-map('n', '<leader>?', function() history({ type = 'search' }) end, { desc = 'Search history' })
+map('n', '<leader>/', function() history({ type = 'search' }) end, { desc = 'Search history' })
 map('n', '<leader>.', require('minibuffer.builtin.buffers'), { desc = 'Buffers' })
-map('n', '<tab>', require('minibuffer.builtin.files'), { desc = 'Files' })
 
-map('n', '<leader>f/', require('minibuffer.builtin.live-grep'), { desc = 'Live grep' })
+map('n', '<leader>f/', live_grep, { desc = 'Live grep' })
 map('n', '<leader>fb', require('minibuffer.builtin.buffers'), { desc = 'Buffers' })
 map('n', '<leader>fd', require('minibuffer.builtin.diagnostics'), { desc = 'Diagnostics' })
 map('n', '<leader>ff', require('minibuffer.builtin.files'), { desc = 'Files' })
@@ -27,15 +38,12 @@ map('n', '<leader>fo', require('minibuffer.builtin.oldfiles'), { desc = 'Old fil
 map('n', '<leader>fr', function() require('minibuffer').resume(true) end, { desc = 'Resume last search' })
 map('n', '<leader>fq', function() list({ type = 'quickfix' }) end, { desc = 'In quickfix' })
 
--- the list's left border is padding that the selection highlight can't cover, so drop the side
--- borders (keeping the bottom one for the footer) and pad the lines instead
+-- drop side borders so cursorline covers whole line
 local SelectSession = require('minibuffer.sessions.select')
 local pre_start = SelectSession.pre_start
 function SelectSession:pre_start()
   pre_start(self)
-  if self._display.win then
-    vim.api.nvim_win_set_config(self._display.win, { border = { '', '', '', '', '', ' ', '', '' } })
-  end
+  vim.api.nvim_win_set_config(self._display.win, { border = { '', '', '', '', '', ' ', '', '' } })
 end
 
 -- file icons for builtin pickers
@@ -46,8 +54,8 @@ minibuffer.select = function(opts, force)
   local builtin = debug.getinfo(2, 'S').source:match('/builtin/([%w-]+)%.lua$')
   local with_icon = vim.list_contains(file_pickers, builtin)
   local format_fn = opts.format_fn
-  opts.format_fn = function(item)
-    local chunks = format_fn(item)
+  opts.format_fn = function(item, ...)
+    local chunks = format_fn(item, ...)
     if with_icon then
       local icon, hl = require('mini.icons').get('file', type(item) == 'string' and item or item.path or item.file)
       table.insert(chunks, 1, { text = icon .. '  ', hl = hl })

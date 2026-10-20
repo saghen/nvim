@@ -1,5 +1,14 @@
 local map = require('tuque.utils').map
 
+vim.pack.add({
+  -- prevents scrolling past the end of the buffer
+  'https://github.com/saghen/filler-begone.nvim',
+  'https://github.com/j-hui/fidget.nvim',
+  'https://github.com/folke/which-key.nvim',
+  -- TODO: revert on merge https://github.com/b0o/incline.nvim/pull/96
+  { src = 'https://github.com/noib3/incline.nvim', version = 'fix/retrack-windows-on-buffer-change' },
+})
+
 -- LSP notifications
 require('fidget').setup({ notification = { window = { normal_hl = 'Normal' } } })
 
@@ -19,9 +28,8 @@ require('which-key').setup({
       mode = 'n',
       { '<leader>a', group = 'Agent' },
       { '<leader>b', group = 'Buffers' },
-      { '<leader>c', group = 'Coding' },
-      { '<leader>f', group = 'Files' },
-      { '<leader>s', group = 'Search' },
+      { '<leader>c', group = 'Copy' },
+      { '<leader>f', group = 'Find' },
       { '<leader>u', group = 'Options' },
       { '<leader>w', group = 'Windows' },
     },
@@ -34,7 +42,12 @@ require('which-key').setup({
 -- winbar
 require('incline').setup({
   hide = { cursorline = 'smart' },
-  ignore = { buftypes = function(_, buftype) return buftype ~= '' and buftype ~= 'terminal' end },
+  -- only files and terminals, so not the unnamed buffer of the intro screen either
+  ignore = {
+    buftypes = function(buf, buftype)
+      return (buftype ~= '' and buftype ~= 'terminal') or vim.api.nvim_buf_get_name(buf) == ''
+    end,
+  },
   window = { padding = 0, margin = { horizontal = 0 } },
   render = function(props)
     -- Terminal rendering
@@ -47,7 +60,6 @@ require('incline').setup({
       for i, term in ipairs(terms) do
         local highlight = i == active_term_idx
             and (term.type == 'agent' and 'TerminalAgentWinbarFocus' or 'TerminalWinbarFocus')
-          or term:is_visible() and 'TerminalWinbarVisible'
           or 'Normal'
         table.insert(term_components, { ' ' .. i .. ' ', group = highlight })
       end
@@ -59,25 +71,17 @@ require('incline').setup({
 
     -- File rendering
 
-    local devicons = require('nvim-web-devicons')
-
     -- Pwd component
     local buf_path = vim.api.nvim_buf_get_name(props.buf)
     local dirname = vim.fn.fnamemodify(buf_path, ':~:.:h')
     local pwd_component = { dirname, group = 'Comment' }
 
     -- Filename component
-    local diagnostic_level = nil
-    for _, diagnostic in ipairs(vim.diagnostic.get(props.buf)) do
-      diagnostic_level = math.min(diagnostic_level or 999, diagnostic.severity)
-    end
-    local filename_hl = diagnostic_level == vim.diagnostic.severity.HINT and 'DiagnosticHint'
-      or diagnostic_level == vim.diagnostic.severity.INFO and 'DiagnosticInfo'
-      or diagnostic_level == vim.diagnostic.severity.WARN and 'DiagnosticWarn'
-      or diagnostic_level == vim.diagnostic.severity.ERROR and 'DiagnosticError'
+    -- colored by the highest severity diagnostic
+    local severity = math.min(math.huge, unpack(vim.tbl_keys(vim.diagnostic.count(props.buf))))
+    local filename_hl = ({ 'DiagnosticError', 'DiagnosticWarn', 'DiagnosticInfo', 'DiagnosticHint' })[severity]
       or 'Normal'
     local filename = vim.fn.fnamemodify(buf_path, ':t')
-    if filename == '' then filename = '[No Name]' end
     local filename_component = { filename, group = filename_hl }
 
     -- Modified icon
@@ -85,8 +89,8 @@ require('incline').setup({
     local modified_component = modified and { ' ● ', group = 'BufferCurrentMod' } or ''
 
     -- Filetype icon
-    local ft_icon, ft_color = devicons.get_icon_color(filename)
-    local icon_component = ft_icon and { ' ', ft_icon, ' ', guifg = ft_color } or ''
+    local icon, icon_hl = MiniIcons.get('file', filename)
+    local icon_component = { ' ', icon, ' ', group = icon_hl }
 
     return {
       modified_component,

@@ -10,57 +10,41 @@ local Manager = {
 
 local group = vim.api.nvim_create_augroup('tuque.term', {})
 
--- Keep track of terminal history
+-- track terminal history
 vim.api.nvim_create_autocmd('BufEnter', {
   group = group,
   callback = vim.schedule_wrap(function(ev)
-    for _, term in ipairs(Manager.get_terms()) do
-      if term.buf == ev.buf then
-        local term_history = Manager.get_term_history()
+    local term = Manager.get_term(ev.buf)
+    if term == nil then return end
+    Manager.term_history = vim.tbl_filter(function(other) return other ~= term end, Manager.get_term_history())
+    table.insert(Manager.term_history, 1, term)
+  end),
+})
 
-        -- Remove from history if it's already there
-        for i, v in ipairs(term_history) do
-          if v == term then
-            table.remove(term_history, i)
-            break
-          end
-        end
-
-        table.insert(term_history, 1, term)
-        return
+-- use signcolumn as padding
+vim.api.nvim_create_autocmd({ 'BufWinEnter', 'WinNew', 'WinClosed' }, {
+  group = group,
+  callback = vim.schedule_wrap(function()
+    local signcolumn = vim.fn.winlayout()[1] == 'leaf' and 'no' or 'yes'
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      if Manager.get_current_term(win) then
+        vim.api.nvim_set_option_value('signcolumn', signcolumn, { scope = 'local', win = win })
       end
     end
   end),
 })
 
--- Update left side padding when a buffer enters a window
-vim.api.nvim_create_autocmd('BufWinEnter', {
+-- ensure signcolumn uses cursorline highlight
+vim.api.nvim_create_autocmd('TermOpen', {
   group = group,
-  callback = function()
-    for _, term in ipairs(Manager.get_terms()) do
-      term:update_padding()
-    end
-  end,
+  callback = function() vim.opt_local.cursorlineopt = 'line' end,
 })
 
--- Run on BufLeave as well since ModeChanged doesn't fire when switching from terminal buffer
--- to another buffer, even though the mode changes
-vim.api.nvim_create_autocmd('ModeChanged', {
-  group = group,
-  callback = function()
-    for _, term in ipairs(Manager.get_terms()) do
-      term:update_cursorline_highlight()
-    end
-  end,
-})
-
--- Remove default TermClose autocmds which close the window
-local term_close_autocmds = vim.api.nvim_get_autocmds({
-  group = 'nvim.terminal',
-  event = 'TermClose',
-})
+-- remove the default TermClose autocmd which closes the window on terminal exit,
+-- keeping the one that shows "[Process exited]" for terminals we don't manage
+local term_close_autocmds = vim.api.nvim_get_autocmds({ group = 'nvim.terminal', event = 'TermClose' })
 for _, autocmd in ipairs(term_close_autocmds) do
-  pcall(vim.api.nvim_del_autocmd, autocmd.id)
+  if autocmd.desc and autocmd.desc:match('^Automatically close') then pcall(vim.api.nvim_del_autocmd, autocmd.id) end
 end
 
 -- Replace terminal buffer with last buffer on exit
@@ -68,7 +52,8 @@ vim.api.nvim_create_autocmd('TermClose', {
   group = group,
   callback = function(args)
     local buf = args.buf
-    if not vim.api.nvim_buf_is_valid(buf) then return end
+    -- only our terminals, so that the output of e.g. `:term cargo test` sticks around
+    if not vim.api.nvim_buf_is_valid(buf) or Manager.get_term(buf) == nil then return end
 
     -- Swap the buffer out of its windows *before* deleting it, since deleting a buffer
     -- closes all windows displaying it
@@ -77,15 +62,9 @@ vim.api.nvim_create_autocmd('TermClose', {
       local alt
 
       -- prefer last term of the same type if it exists
-      local term = vim.tbl_filter(function(term) return term.buf == buf end, Manager.terms)[1]
-      if term ~= nil then
-        for _, other_term in ipairs(Manager.get_term_history()) do
-          if other_term ~= term and term.type == other_term.type and not other_term:is_visible() then
-            alt = other_term.buf
-            break
-          end
-        end
-      end
+      local term = Manager.get_term(buf)
+      local other_term = term and Manager.get_last_hidden_term(term.type)
+      if other_term then alt = other_term.buf end
 
       -- otherwise, last buffer
       if not alt then
@@ -118,13 +97,22 @@ function Manager.get_term_history()
   return term_history
 end
 
+--- @param buf number
+--- @return tuque.Terminal?
+function Manager.get_term(buf)
+  return vim.iter(Manager.get_terms()):find(function(term) return term.buf == buf end)
+end
+
 --- @param win number?
 --- @return tuque.Terminal?
-function Manager.get_current_term(win)
-  local terms = Manager.get_terms()
-  for _, term in ipairs(terms) do
-    if term:is_focused(win) then return term end
-  end
+function Manager.get_current_term(win) return Manager.get_term(vim.api.nvim_win_get_buf(win or 0)) end
+
+--- Most recently focused terminal that isn't visible in any window
+--- @param type tuque.TerminalType?
+--- @return tuque.Terminal?
+function Manager.get_last_hidden_term(type)
+  local function is_hidden(term) return (not type or term.type == type) and not term:is_visible() end
+  return vim.iter(Manager.get_term_history()):find(is_hidden)
 end
 
 --- @param type tuque.TerminalType?
@@ -142,41 +130,23 @@ function Manager.cycle(type)
   local terms = Manager.get_terms(type)
   local current_term_idx = Manager.get_current_term_idx(type)
 
-  -- No terminal focused
+  -- No terminal focused: focus the last terminal, or create one
+  -- TODO: create a new terminal if all the existing are visible
   if current_term_idx == nil then
-    -- Focus the last terminal
-    -- TODO: create a new terminal if all the existing are visible
-    if #terms > 0 then
-      Manager.focus_last(type)
-    -- Create a new terminal and focus it
-    else
-      Manager.create(type)
-    end
-  -- Terminal focused
-  else
-    if #terms == 1 then
-      -- No other terminals exist
-      vim.notify('No other terminals exist')
-    else
-      -- Focus the next terminal
-      local next_term_idx = (current_term_idx % #terms) + 1
-      return terms[next_term_idx]:focus()
-    end
+    if #terms > 0 then return Manager.focus_last(type) end
+    return Manager.create(type)
   end
+
+  if #terms == 1 then return vim.notify('No other terminals exist') end
+  terms[(current_term_idx % #terms) + 1]:focus()
 end
 
 --- @param type tuque.TerminalType?
 function Manager.focus_last(type)
-  -- Focus the last term that isn't currently visible
-  for _, term in ipairs(Manager.get_term_history()) do
-    if (not type or term.type == type) and not term:is_visible() then return term:focus() end
-  end
-
-  -- Focus the first term instead
-  local terms = Manager.get_terms(type)
-  if #terms > 0 then return terms[1]:focus() end
-
-  error('No terminals found')
+  -- Prefer the last term that isn't currently visible, otherwise the first term
+  local term = Manager.get_last_hidden_term(type) or Manager.get_terms(type)[1]
+  if term == nil then error('No terminals found') end
+  term:focus()
 end
 
 --- @param type tuque.TerminalType?
@@ -186,7 +156,5 @@ function Manager.create(type)
   table.insert(Manager.terms, term)
   return term
 end
-
-require('tuque.term.commands').setup(Manager)
 
 return Manager

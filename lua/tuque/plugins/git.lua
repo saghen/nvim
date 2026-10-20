@@ -1,5 +1,10 @@
 local map = require('tuque.utils').map
 
+vim.pack.add({
+  'https://github.com/nvim-lua/plenary.nvim',
+  'https://github.com/NeogitOrg/neogit',
+})
+
 -- magit
 map('n', '<leader>g', '<cmd>Neogit kind=replace<cr>', { desc = 'Open Neogit' })
 require('neogit').setup({

@@ -1,8 +1,13 @@
 local map = require('tuque.utils').map
 
+vim.pack.add({
+  'https://github.com/theprimeagen/99',
+  'https://github.com/supermaven-inc/supermaven-nvim',
+})
+
 -- agent
 local _99 = require('99')
-map('v', '<leader>av', function() _99.visual() end, { desc = 'AI Agent (Visual)' })
+map('x', '<leader>av', function() _99.visual() end, { desc = 'AI Agent (Visual)' })
 map('n', '<leader>ax', function() _99.stop_all_requests() end, { desc = 'Cancel all AI Agents' })
 map('n', '<leader>as', function() _99.search() end, { desc = 'AI Agent (Search)' })
 _99.setup({ provider = _99.Providers.ClaudeCodeProvider, model = 'opus' })
@@ -10,7 +15,7 @@ _99.setup({ provider = _99.Providers.ClaudeCodeProvider, model = 'opus' })
 -- autocomplete
 require('supermaven-nvim').setup({
   keymaps = { accept_suggestion = '<M-i>' },
-  color = { suggestion_color = '#585b70' },
+  color = { suggestion_color = vim.g.colors.surface_2 },
   log_level = 'off',
 })
 

@@ -83,7 +83,10 @@ local hl = {
   PmenuSbar = { bg = c.bg1 },
   PmenuThumb = { bg = c.grey },
   WildMenu = { fg = c.bg0, bg = c.blue },
-  QuickFixLine = { fg = c.blue, underline = true },
+  QuickFixLine = { bg = darken(c.blue, 0.15) },
+  QuickFixFilename = { fg = colors.subtext_0 },
+  QuickFixLineNr = 'QuickFixFilename',
+  QuickFixBorder = { fg = c.grey },
   Directory = { fg = c.blue },
   Title = { fg = c.cyan },
   Question = { fg = c.yellow },
@@ -152,6 +155,7 @@ local hl = {
   Delimiter = { fg = c.light_grey },
 
   -- treesitter, only where neovim's default links differ
+  ['@punctuation'] = { fg = c.light_grey },
   ['@attribute'] = { fg = c.cyan },
   ['@attribute.builtin'] = { fg = c.blue },
   ['@comment'] = { fg = c.blue, italic = true },
@@ -256,6 +260,11 @@ local hl = {
   BlinkCmpDocBorder = { bg = c.bg_d },
   BlinkCmpScrollBarThumb = { bg = c.grey },
   BlinkCmpScrollBarGutter = { bg = c.bg1 },
+
+  MinibufferNormal = { fg = c.fg, bg = c.bg_d },
+  MinibufferPrompt = { fg = c.yellow, bg = c.bg_d },
+  MinibufferPath = { fg = colors.overlay_1, italic = true },
+  MsgArea = { bg = c.bg_d }, -- ui2's cmdline, under the minibuffer's completions
 
   BlinkIndent = { fg = c.bg1 },
   BlinkIndentOrange = { fg = c.orange },

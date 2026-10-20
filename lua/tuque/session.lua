@@ -1,7 +1,7 @@
 -- each project runs in its own nvim server, which we can :detach from
 -- the sockets are named after the project's path, and nvim-launch (nixfiles)
 -- starts or attaches to the server for $HOME
-local servers_dir = vim.env.XDG_RUNTIME_DIR .. '/tuque'
+local servers_dir = (vim.env.XDG_RUNTIME_DIR or vim.fn.stdpath('run')) .. '/tuque'
 local sessions_dir = vim.fn.stdpath('data') .. '/sessions'
 local recency_path = vim.fn.stdpath('data') .. '/project-recency'
 
@@ -20,16 +20,17 @@ end
 
 local function server_project(sock) return (vim.fn.fnamemodify(sock, ':t:r'):gsub('%%', '/')) end
 
-local function list_open_projects()
-  return vim.tbl_map(server_project, vim.fn.glob(servers_dir .. '/*.sock', true, true))
-end
-
 -- crashed servers leave a dangling socket
 local function is_server_alive(sock)
   local ok, chan = pcall(vim.fn.sockconnect, 'pipe', sock, { rpc = true })
   if not ok or chan == 0 then return false end
   vim.fn.chanclose(chan)
   return true
+end
+
+local function list_open_projects()
+  local socks = vim.tbl_filter(is_server_alive, vim.fn.glob(servers_dir .. '/*.sock', true, true))
+  return vim.tbl_map(server_project, socks)
 end
 
 function M.is_project_server() return vim.startswith(vim.v.servername, servers_dir) end
@@ -52,7 +53,9 @@ local function open_project(project_folder, stop_current)
   local sock = server_path(project_folder)
   if sock == vim.v.servername then return end
   write_recent_projects(project_folder)
-  if not vim.uv.fs_stat(sock) then
+  if not is_server_alive(sock) then
+    -- remove the dangling socket, so that we wait for the new server's socket below
+    os.remove(sock)
     -- unset $NVIM so that flatten.nvim doesn't treat the server as a guest and exit.
     -- no stdout/stderr pipes, since the server would die writing to them after we exit
     vim.system(

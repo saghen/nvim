@@ -1,29 +1,21 @@
 local group = vim.api.nvim_create_augroup('tuque.autocmds', {})
 
--- stop snippet session on insert leave
-vim.api.nvim_create_autocmd('InsertLeave', { group = group, callback = vim.snippet.stop })
-
--- sets current line's color based on the current mode
+-- sets color of selected line's number based on the current mode
+-- stylua: ignore
 local mode_hl_groups = {
-  [''] = 'ModeVisual',
-  v = 'ModeVisual',
-  V = 'ModeVisual',
-  ['\22'] = 'ModeVisual',
-  n = 'ModeNormal',
-  no = 'ModeNormal',
+  v = 'ModeVisual', V = 'ModeVisual', ['\22'] = 'ModeVisual',
+  n = 'ModeNormal', no = 'ModeNormal',
   i = 'ModeInsert',
   c = 'ModeCommand',
-  s = 'ModeSelect',
-  S = 'ModeSelect',
+  s = 'ModeSelect', S = 'ModeSelect',
   R = 'ModeReplace',
-  t = 'ModeTerminal',
-  nt = 'ModeTerminal',
+  t = 'ModeTerminal', nt = 'ModeTerminal',
 }
 vim.api.nvim_create_autocmd({ 'BufEnter', 'ModeChanged' }, {
   group = group,
   callback = function()
     local mode = vim.api.nvim_get_mode().mode
-    local mode_hl_group = mode_hl_groups[mode] or 'ModeNormal'
+    local mode_hl_group = mode_hl_groups[mode] or mode_hl_groups[mode:sub(1, 1)] or 'ModeNormal'
     local hl = vim.api.nvim_get_hl(0, { name = mode_hl_group, link = false })
     hl = vim.tbl_extend('force', { bold = true }, hl)
     vim.api.nvim_set_hl(0, 'CursorLineNr', hl)
@@ -55,8 +47,7 @@ vim.api.nvim_create_autocmd('BufReadPost', {
 vim.api.nvim_create_autocmd('BufWinEnter', {
   group = group,
   callback = function(ev)
-    -- a fresh :help split has the previous (non-help) buffer as its alternate
-    if vim.bo[ev.buf].buftype ~= 'help' or vim.bo[vim.fn.bufnr('#')].buftype == 'help' then return end
+    if vim.bo[ev.buf].buftype ~= 'help' or ev.file ~= '' then return end
     local help_win = vim.api.nvim_get_current_win()
     vim.cmd.wincmd('p')
     if vim.api.nvim_get_current_win() == help_win then return end

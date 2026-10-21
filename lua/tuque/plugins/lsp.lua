@@ -38,6 +38,7 @@ vim.lsp.config('rust_analyzer', {
     },
   },
 })
+vim.lsp.config('nil_ls', { settings = { ['nil'] = { formatting = { command = { 'nixfmt' } } } } })
 
 vim.lsp.enable({ 'efm', 'emmylua_ls', 'gopls', 'nil_ls', 'rust_analyzer', 'tsc', 'ty' })
 

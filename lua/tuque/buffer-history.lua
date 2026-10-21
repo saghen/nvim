@@ -3,7 +3,9 @@ local history_length = 5
 
 --- @return boolean
 local function include_buffer(buf)
-  return vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buflisted and vim.bo[buf].buftype == ''
+  return vim.api.nvim_buf_is_valid(buf)
+    and vim.bo[buf].buflisted
+    and (vim.bo[buf].buftype == '' or vim.b[buf].buffer_history == true)
 end
 
 local function trim_and_filter_dead()
@@ -38,23 +40,20 @@ vim.api.nvim_create_autocmd('BufEnter', {
 })
 
 --- @param n number
---- @param exclude_visible? boolean
-local function get_nth_previous_buffer(n, exclude_visible)
+local function get_nth_previous_buffer(n)
   trim_and_filter_dead()
 
-  -- Ignore current buffer
-  local excluded_bufs = { vim.api.nvim_get_current_buf() }
-  if exclude_visible then
-    for _, win in ipairs(vim.api.nvim_list_wins()) do
-      table.insert(excluded_bufs, vim.api.nvim_win_get_buf(win))
-    end
+  -- Ignore visible buffers
+  local excluded_bufs = {}
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    table.insert(excluded_bufs, vim.api.nvim_win_get_buf(win))
   end
-  local buffer_history_without_current = vim.tbl_filter(
+  local buffer_history_filtered = vim.tbl_filter(
     function(buf) return not vim.tbl_contains(excluded_bufs, buf) end,
     buffer_history
   )
 
-  return buffer_history_without_current[n]
+  return buffer_history_filtered[n] or buffer_history[n]
 end
 
 --- @class tuque.BufferHistory

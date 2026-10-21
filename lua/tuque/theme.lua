@@ -9,7 +9,7 @@ local c = {
   bg3 = colors.surface_1,
   grey = colors.surface_2,
   light_grey = colors.overlay_2,
-  fg = '#abb2bf',
+  fg = '#bec5d2',
 
   red = '#e86671',
   orange = '#d19a66',
@@ -244,7 +244,6 @@ local hl = {
   InclineNormalNC = { bg = c.bg1 },
   BufferCurrentMod = { fg = c.yellow, bold = true },
   TerminalWinbarFocus = { fg = c.black, bg = c.blue },
-  TerminalAgentWinbarFocus = { fg = c.black, bg = c.green },
 
   -- plugins
   BlinkCmpMenu = { bg = c.bg1 },
@@ -287,6 +286,9 @@ local hl = {
   MiniIconsPurple = { fg = c.purple },
   MiniIconsRed = { fg = c.red },
   MiniIconsYellow = { fg = c.yellow },
+
+  OttoToolArg = { fg = c.light_grey },
+  OttoToolSummary = { fg = c.light_grey },
 
   WhichKey = { fg = c.purple },
   WhichKeyBorder = { fg = c.bg_d, bg = c.bg_d },

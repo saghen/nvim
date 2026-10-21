@@ -1,11 +1,14 @@
 local map = require('tuque.utils').map
 
 map('i', '<C-backspace>', '<C-w>', { desc = 'Delete word' })
+map('n', '<tab>', 'za', { desc = 'Toggle fold' })
+map('n', '<s-tab>', 'zA', { desc = 'Toggle fold recursively' })
+map('n', '<C-i>', '<C-i>', { desc = 'Jump forward' }) -- <tab> also applies to <C-i> unless both are mapped
 
-map({ 'n', 'x', 'o' }, "'", '`') -- To make room for ` as terminal key
-
+map({ 'n', 'x' }, "'", '`') -- To make room for ` as terminal key
 map('n', 'C', 'ciw', { desc = 'Change inside word' })
 map('n', 'Q', '<cmd>q<cr>', { desc = 'Quit' })
+map('n', 'q', 'Q', { desc = 'Multicursor' })
 
 -- better up/down - allows moving to wrapped lines
 map({ 'n', 'x' }, 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true })
@@ -17,6 +20,13 @@ map({ 'n', 'x' }, '<Up>', "v:count == 0 ? 'gk' : 'k'", { expr = true })
 map({ 'n', 'x', 'o' }, 'gl', '$')
 map({ 'n', 'x', 'o' }, 'gh', '0')
 map({ 'n', 'x', 'o' }, 'gs', '^')
+
+-- ctrl based commands
+map({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Save file' })
+
+-- better indenting
+map('x', '<', '<gv')
+map('x', '>', '>gv')
 
 -- move to window with alt + hjkl/arrows, in any mode
 for dir, keys in pairs({
@@ -55,14 +65,12 @@ map({ 'i', 'n', 's' }, '<esc>', '<cmd>noh<cr><esc>', { desc = 'Escape and clear 
 -- Terminal
 map('t', '<Esc>', [[<C-\><C-n>]], { desc = 'Exit terminal mode' })
 map('t', '<C-]>', '<Esc>', { desc = 'Pass <Esc> to terminal' })
-map({ 'n', 'x' }, '`', function() require('tuque.term').cycle('normal') end, { desc = 'Cycle terminal' })
-map({ 'n', 'x' }, '=', function() require('tuque.term').cycle('agent') end, { desc = 'Cycle agent terminal' })
--- acts on the same type as the current terminal, does nothing outside of terminals
+map({ 'n', 'x' }, '`', function() require('tuque.term').cycle() end, { desc = 'Cycle terminal' })
+-- does nothing outside of terminals
 local function term_action(action)
   return function()
     local term = require('tuque.term')
-    local active_term = term.get_current_term()
-    if active_term ~= nil then term[action](active_term.type) end
+    if term.index(vim.api.nvim_get_current_buf()) ~= nil then term[action]() end
   end
 end
 map({ 'n', 'x', 't' }, '<M-g>', term_action('cycle'), { desc = 'Next terminal' })
@@ -75,21 +83,14 @@ map('n', 'N', "'nN'[v:searchforward].'zv'", { expr = true, desc = 'Prev search r
 map({ 'x', 'o' }, 'N', "'nN'[v:searchforward]", { expr = true, desc = 'Prev search result' })
 
 -- projects and quit
--- project switching only works in project servers (i.e. nvim-launch), see tuque.session
+-- quitting to the last project only applies to project servers (i.e. nvim-launch), see tuque.session
 local session = require('tuque.session')
+map('n', '<leader>-', session.pick_project, { desc = 'Projects' })
 if session.is_project_server() then
-  map('n', '<leader>-', session.pick_project, { desc = 'Projects' })
   map('n', '<C-q>', function() session.quit_project(false) end, { desc = 'Quit project' })
 else
   map('n', '<C-q>', '<cmd>qa<cr>', { desc = 'Quit all' })
 end
-
--- ctrl based commands
-map({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Save file' })
-
--- better indenting
-map('x', '<', '<gv')
-map('x', '>', '>gv')
 
 -- options
 map('n', '<leader>uw', '<cmd>set wrap!<cr>', { desc = 'Toggle line wrapping' })

@@ -51,16 +51,12 @@ require('incline').setup({
   window = { padding = 0, margin = { horizontal = 0 } },
   render = function(props)
     -- Terminal rendering
-    local term_manager = require('tuque.term')
-    local active_term = term_manager.get_current_term(props.win)
-    local active_term_idx = active_term and term_manager.get_current_term_idx(active_term.type, props.win)
-    if active_term_idx ~= nil and active_term ~= nil then
-      local terms = term_manager.get_terms(active_term.type)
+    local term = require('tuque.term')
+    local active_term_idx = term.index(props.buf)
+    if active_term_idx ~= nil then
       local term_components = {}
-      for i, term in ipairs(terms) do
-        local highlight = i == active_term_idx
-            and (term.type == 'agent' and 'TerminalAgentWinbarFocus' or 'TerminalWinbarFocus')
-          or 'Normal'
+      for i in ipairs(term.list()) do
+        local highlight = i == active_term_idx and 'TerminalWinbarFocus' or 'Normal'
         table.insert(term_components, { ' ' .. i .. ' ', group = highlight })
       end
 

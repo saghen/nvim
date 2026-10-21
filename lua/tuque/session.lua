@@ -1,6 +1,7 @@
 -- each project runs in its own nvim server, which we can :detach from
 -- the sockets are named after the project's path, and nvim-launch (nixfiles)
--- starts or attaches to the server for $HOME
+-- starts or attaches to the server for $HOME. other instances (e.g. `nvim` in a terminal)
+-- belong to the folder they were started in
 local servers_dir = (vim.env.XDG_RUNTIME_DIR or vim.fn.stdpath('run')) .. '/tuque'
 local sessions_dir = vim.fn.stdpath('data') .. '/sessions'
 local recency_path = vim.fn.stdpath('data') .. '/project-recency'
@@ -35,6 +36,23 @@ end
 
 function M.is_project_server() return vim.startswith(vim.v.servername, servers_dir) end
 
+-- instances opened on files (e.g. `nvim foo.txt`, `git commit`) or stdin have no project, so they
+-- don't clobber its session
+local current_project = M.is_project_server() and server_project(vim.v.servername)
+  or (vim.fn.argc() == 0 and vim.fn.getcwd() or nil)
+
+-- `:connect!` exits without checking for unsaved changes
+local function has_unsaved_changes()
+  for _, buf in ipairs(vim.fn.getbufinfo({ bufmodified = 1 })) do
+    if vim.list_contains({ '', 'acwrite' }, vim.bo[buf.bufnr].buftype) then
+      local name = buf.name == '' and '[No Name]' or vim.fn.fnamemodify(buf.name, ':~:.')
+      vim.notify(('E162: No write since last change for buffer "%s"'):format(name), vim.log.levels.ERROR)
+      return true
+    end
+  end
+  return false
+end
+
 local function read_recent_projects()
   local ok, result = pcall(vim.fn.readfile, recency_path)
   return ok and result or {}
@@ -52,6 +70,11 @@ end
 local function open_project(project_folder, stop_current)
   local sock = server_path(project_folder)
   if sock == vim.v.servername then return end
+  -- other instances would keep running headless and unreachable after the UI leaves
+  if not M.is_project_server() then
+    if has_unsaved_changes() then return end
+    stop_current = true
+  end
   write_recent_projects(project_folder)
   if not is_server_alive(sock) then
     -- remove the dangling socket, so that we wait for the new server's socket below
@@ -82,15 +105,7 @@ end
 -- stops the current project's server and switches to the last project, only exiting
 -- the window when quitting the home server with no other projects open
 function M.quit_project(force)
-  -- `:connect!` exits without checking for unsaved changes
-  if not force then
-    for _, buf in ipairs(vim.fn.getbufinfo({ bufmodified = 1 })) do
-      if vim.list_contains({ '', 'acwrite' }, vim.bo[buf.bufnr].buftype) then
-        local name = buf.name == '' and '[No Name]' or vim.fn.fnamemodify(buf.name, ':~:.')
-        return vim.notify(('E162: No write since last change for buffer "%s"'):format(name), vim.log.levels.ERROR)
-      end
-    end
-  end
+  if not force and has_unsaved_changes() then return end
 
   local project_folder = last_project()
   if project_folder == nil then return vim.cmd(force and 'qa!' or 'qa') end
@@ -98,7 +113,7 @@ function M.quit_project(force)
 end
 
 function M.pick_project()
-  local current = server_project(vim.v.servername)
+  local current = current_project
   local open_projects = list_open_projects()
   local recency_rank = {}
   for rank, project_folder in ipairs(read_recent_projects()) do
@@ -141,20 +156,18 @@ function M.pick_project()
   })
 end
 
--- only project servers have sessions, so a plain `nvim` (e.g. opened in a terminal) can't clobber
--- them. the home server is a scratchpad, so it's skipped too
+-- the home folder is a scratchpad, so it has no session
 local function session_path()
-  local project_folder = server_project(vim.v.servername)
-  if not M.is_project_server() or project_folder == vim.env.HOME then return end
+  if current_project == nil or current_project == vim.env.HOME then return end
   -- named the same as neovim-session-manager, so that its sessions keep loading
-  return ('%s/%s'):format(sessions_dir, (project_folder:gsub('/', '__')))
+  return ('%s/%s'):format(sessions_dir, (current_project:gsub('/', '__')))
 end
 
 local function load_session()
   local path = session_path()
   if path == nil or not vim.uv.fs_stat(path) then return end
 
-  -- the server is headless, so a swap file prompt would hang it
+  -- project servers are headless, so a swap file prompt would hang them
   local swapfile = vim.o.swapfile
   vim.o.swapfile = false
   local ok, err = pcall(vim.cmd, 'silent source ' .. vim.fn.fnameescape(path))
@@ -175,6 +188,7 @@ end
 vim.opt.sessionoptions = { 'buffers', 'curdir', 'folds', 'globals', 'tabpages', 'winsize' }
 
 local group = vim.api.nvim_create_augroup('tuque.session', {})
+vim.api.nvim_create_autocmd('StdinReadPre', { group = group, callback = function() current_project = nil end })
 -- nested, so that the session's buffers run their BufRead/FileType autocmds
 vim.api.nvim_create_autocmd('VimEnter', { group = group, nested = true, callback = load_session })
 -- servers get killed without VimLeavePre (e.g. on shutdown), so save on write too

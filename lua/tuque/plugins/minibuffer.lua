@@ -1,6 +1,6 @@
 local map = require('tuque.utils').map
 
-vim.g.minibuffer = { dynamic_window_resize = false, cmd = { max_height = 10 } } -- overlay the windows instead of resizing them
+vim.g.minibuffer = { cmd = { max_height = 10 } }
 require('tuque.utils').pack_add_dev({ 'https://github.com/saghen/minibuffer.nvim' })
 
 vim.ui.select = require('minibuffer.builtin.ui_select')
@@ -18,14 +18,15 @@ local function live_grep()
   })
 end
 
+-- TODO: all of these should work in visual mode, where the selection becomes the prompt
+
 map('n', ',', live_grep, { desc = 'Live grep' })
-map('n', '<tab>', require('minibuffer.builtin.files'), { desc = 'Files' })
-map('n', '<C-i>', '<C-i>', { desc = 'Jump forward' }) -- <tab> also applies to <C-i> unless both are mapped
+map('n', ';', require('minibuffer.builtin.files'), { desc = 'Files' })
+map('n', '<leader>.', require('minibuffer.builtin.buffers'), { desc = 'Buffers' })
 map('n', '<leader>r', function() require('minibuffer').resume(true) end, { desc = 'Resume last search' })
 map('n', "<leader>'", require('minibuffer.builtin.marks'), { desc = 'Marks' })
 map('n', '<leader>:', function() history({ type = 'cmd' }) end, { desc = 'Command history' })
 map('n', '<leader>/', function() history({ type = 'search' }) end, { desc = 'Search history' })
-map('n', '<leader>.', require('minibuffer.builtin.buffers'), { desc = 'Buffers' })
 
 map('n', '<leader>f/', live_grep, { desc = 'Live grep' })
 map('n', '<leader>fb', require('minibuffer.builtin.buffers'), { desc = 'Buffers' })

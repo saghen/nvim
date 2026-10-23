@@ -20,6 +20,7 @@ end
 
 -- TODO: all of these should work in visual mode, where the selection becomes the prompt
 
+map('n', '-', function() require('tuque.find-file').open() end, { desc = 'Find file' })
 map('n', ',', live_grep, { desc = 'Live grep' })
 map('n', ';', require('minibuffer.builtin.files'), { desc = 'Files' })
 map('n', '<leader>.', require('minibuffer.builtin.buffers'), { desc = 'Buffers' })
@@ -39,12 +40,21 @@ map('n', '<leader>fo', require('minibuffer.builtin.oldfiles'), { desc = 'Old fil
 map('n', '<leader>fr', function() require('minibuffer').resume(true) end, { desc = 'Resume last search' })
 map('n', '<leader>fq', function() list({ type = 'quickfix' }) end, { desc = 'In quickfix' })
 
--- drop side borders so cursorline covers whole line
 local SelectSession = require('minibuffer.sessions.select')
 local pre_start = SelectSession.pre_start
 function SelectSession:pre_start()
   pre_start(self)
+  -- drop side borders so cursorline covers whole line
   vim.api.nvim_win_set_config(self._display.win, { border = { '', '', '', '', '', ' ', '', '' } })
+  -- autopairs would add a closing quote or bracket to the query
+  vim.b[self._entry.buf].blink_pairs = false
+end
+
+-- the prompts are a single line, so drop pasted line breaks (e.g. the one after a copied path)
+local paste = vim.paste
+vim.paste = function(lines, phase)
+  if vim.w.minibuffer == true then lines = { table.concat(lines) } end
+  return paste(lines, phase)
 end
 
 -- file icons for builtin pickers

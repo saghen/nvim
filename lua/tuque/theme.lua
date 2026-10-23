@@ -263,6 +263,7 @@ local hl = {
   MinibufferNormal = { fg = c.fg, bg = c.bg_d },
   MinibufferPrompt = { fg = c.yellow, bg = c.bg_d },
   MinibufferPath = { fg = colors.overlay_1, italic = true },
+  TuqueFindFileMatch = { fg = c.orange, bold = true },
   MsgArea = { bg = c.bg_d }, -- ui2's cmdline, under the minibuffer's completions
 
   BlinkIndent = { fg = c.bg1 },

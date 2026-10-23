@@ -1,11 +1,9 @@
 local map = require('tuque.utils').map
 
+-- edit the filesystem like a buffer
 vim.pack.add({ 'https://github.com/stevearc/oil.nvim' })
 
--- edit the filesystem like a buffer
--- same as - and _ inside oil
-map('n', '-', '<cmd>Oil<cr>', { desc = 'Open parent directory' })
-map('n', '_', function() require('oil').open(vim.fn.getcwd()) end, { desc = 'Open working directory' })
+map('n', '_', '<cmd>Oil<cr>', { desc = 'Open parent directory' })
 
 require('oil').setup({
   keymaps = {

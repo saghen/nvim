@@ -10,6 +10,17 @@ map('n', 'C', 'ciw', { desc = 'Change inside word' })
 map('n', 'Q', '<cmd>q<cr>', { desc = 'Quit' })
 map('n', 'q', 'Q', { desc = 'Multicursor' })
 
+-- split line at the cursor
+map('n', 'S', function()
+  vim.cmd('normal! i\r')
+  -- remove the whitespace left at the end of the line we split
+  local row = vim.api.nvim_win_get_cursor(0)[1] - 2
+  local prev = vim.api.nvim_buf_get_lines(0, row, row + 1, true)[1]
+  local trimmed = #prev:match('^(.-)%s*$')
+  if trimmed < #prev then vim.api.nvim_buf_set_text(0, row, trimmed, row, #prev, {}) end
+  vim.cmd('normal! ^')
+end, { desc = 'Split line' })
+
 -- better up/down - allows moving to wrapped lines
 map({ 'n', 'x' }, 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true })
 map({ 'n', 'x' }, '<Down>', "v:count == 0 ? 'gj' : 'j'", { expr = true })

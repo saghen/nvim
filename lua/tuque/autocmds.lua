@@ -22,6 +22,15 @@ vim.api.nvim_create_autocmd({ 'BufEnter', 'ModeChanged' }, {
   end,
 })
 
+-- create missing parent directories when writing a new file
+vim.api.nvim_create_autocmd('BufWritePre', {
+  group = group,
+  callback = function(event)
+    if vim.bo[event.buf].buftype ~= '' or event.match:match('^%w+://') then return end
+    vim.fn.mkdir(vim.fs.dirname(event.match), 'p')
+  end,
+})
+
 -- highlight on yank
 vim.api.nvim_create_autocmd('TextYankPost', {
   group = group,

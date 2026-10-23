@@ -21,7 +21,6 @@ end
 
 local function server_project(sock) return (vim.fn.fnamemodify(sock, ':t:r'):gsub('%%', '/')) end
 
--- crashed servers leave a dangling socket
 local function is_server_alive(sock)
   local ok, chan = pcall(vim.fn.sockconnect, 'pipe', sock, { rpc = true })
   if not ok or chan == 0 then return false end
@@ -70,22 +69,22 @@ end
 local function open_project(project_folder, stop_current)
   local sock = server_path(project_folder)
   if sock == vim.v.servername then return end
+
   -- other instances would keep running headless and unreachable after the UI leaves
   if not M.is_project_server() then
     if has_unsaved_changes() then return end
     stop_current = true
   end
   write_recent_projects(project_folder)
+
   if not is_server_alive(sock) then
-    -- remove the dangling socket, so that we wait for the new server's socket below
-    os.remove(sock)
-    -- unset $NVIM so that flatten.nvim doesn't treat the server as a guest and exit.
-    -- no stdout/stderr pipes, since the server would die writing to them after we exit
+    os.remove(sock) -- remove dangling socket
+
+    -- spawn fully detached, with no connection to this instance
     vim.system(
       { 'env', '-u', 'NVIM', 'nvim', '--headless', '--listen', sock },
       { cwd = project_folder, detach = true, stdout = false, stderr = false }
     )
-    -- connecting to a socket that never comes up hangs, so bail
     if not vim.wait(5000, function() return vim.uv.fs_stat(sock) ~= nil end, 10) then
       return vim.notify('Failed to start nvim server for ' .. project_folder, vim.log.levels.ERROR)
     end
@@ -149,7 +148,7 @@ function M.pick_project()
         { text = ({ '•', '∘', ' ' })[group(project_folder) + 1] .. ' ' },
         { text = icon .. ' ', hl = icon_hl },
         { text = ('%-30s '):format(vim.fn.fnamemodify(project_folder, ':t')), hl = 'Normal' },
-        { text = project_folder, hl = 'Comment' },
+        { text = project_folder, hl = 'MinibufferPath' },
       }
     end,
     on_accept = function(selection) open_project(selection[1].item) end,

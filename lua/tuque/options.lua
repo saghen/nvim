@@ -18,10 +18,12 @@ opt.smartcase = true -- Don't ignore case with capitals
 opt.smartindent = true -- Insert indents automatically
 opt.splitright = true -- Open vertical splits on the right
 opt.splitbelow = true -- Open horizontal splits below
+opt.splitkeep = 'screen' -- Keep text in place when a window shrinks/grows
 opt.undofile = true
 opt.undolevels = 500 -- Too large increases file loading time, keep below 1000
 opt.updatetime = 200 -- Save swap file and trigger CursorHold
 opt.virtualedit = 'block' -- Allow cursor to move where there is no text in visual block mode
+opt.wildoptions:append('fuzzy') -- Use fuzzy matching for command line completion
 
 opt.shiftwidth = 2 -- Size of an indent
 opt.tabstop = 2 -- Number of spaces tabs count for

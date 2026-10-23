@@ -21,5 +21,9 @@ require('neogit').setup({
   commit_editor = { kind = 'split' },
   popup = { kind = 'split' },
   log_view = { kind = 'replace' },
-  mappings = { commit_editor = { ['<enter>'] = 'Submit', ['<backspace>'] = 'Abort' } },
+  mappings = {
+    status = { ['-'] = false },
+    commit_editor = { ['<enter>'] = 'Submit', ['<backspace>'] = 'Abort' },
+    commit_editor_I = { ['<c-s>'] = 'Submit' },
+  },
 })

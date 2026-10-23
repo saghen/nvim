@@ -6,6 +6,7 @@ vim.pack.add({ 'https://github.com/supermaven-inc/supermaven-nvim' })
 ---------------
 -- agent
 utils.pack_add_dev({ 'https://github.com/saghen/otto.nvim' })
+map('n', '=', '<cmd>Otto<cr>', { desc = 'Find session' })
 map('n', '<leader>af', '<cmd>Otto<cr>', { desc = 'Find session' })
 map('n', '<leader>ap', '<cmd>Otto pi<cr>', { desc = 'New Pi session' })
 map('n', '<leader>aP', ':Otto pi ', { silent = false, desc = 'New named Pi session' })
@@ -33,6 +34,7 @@ require('supermaven-nvim').setup({
   keymaps = { accept_suggestion = '<M-i>' },
   color = { suggestion_color = vim.g.colors.surface_2 },
   log_level = 'off',
+  ignore_filetypes = { 'otto' },
 })
 
 -- supermaven copies the whole buffer on every cursor move and every 25ms while polling,
@@ -40,26 +42,18 @@ require('supermaven-nvim').setup({
 local util = require('supermaven-nvim.util')
 local text_key, text, prefix_key, prefix
 
---- agent transcripts grow to thousands of lines, trim to last 300
---- @param bufnr integer
-local function first_row(bufnr)
-  if vim.bo[bufnr].filetype ~= 'otto' then return 0 end
-  return math.max(vim.api.nvim_buf_line_count(bufnr) - 300, 0)
-end
-
 util.get_text = function(bufnr)
   local key = bufnr .. ':' .. vim.api.nvim_buf_get_changedtick(bufnr)
   if key ~= text_key then
     text_key = key
-    text = table.concat(vim.api.nvim_buf_get_lines(bufnr, first_row(bufnr), -1, false), '\n')
+    text = table.concat(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false), '\n')
   end
   return text
 end
 util.get_cursor_prefix = function(bufnr, cursor)
   local key = bufnr .. ':' .. vim.api.nvim_buf_get_changedtick(bufnr) .. ':' .. cursor[1] .. ':' .. cursor[2]
   if key ~= prefix_key then
-    -- errors when the cursor is above the text, which supermaven skips
-    prefix = table.concat(vim.api.nvim_buf_get_text(bufnr, first_row(bufnr), 0, cursor[1] - 1, cursor[2], {}), '\n')
+    prefix = table.concat(vim.api.nvim_buf_get_text(bufnr, 0, 0, cursor[1] - 1, cursor[2], {}), '\n')
     prefix_key = key
   end
   return prefix

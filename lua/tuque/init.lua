@@ -18,8 +18,16 @@ end
 -- nested neovim instances open in the parent
 vim.pack.add({ 'https://github.com/willothy/flatten.nvim' })
 require('flatten').setup({
-  -- adds support for kubectl edit, sops and probably many other tools
-  hooks = { should_block = function(argv) return vim.startswith(argv[#argv], '/tmp') end },
+  hooks = {
+    -- adds support for kubectl edit, sops and probably many other tools
+    should_block = function(argv) return vim.startswith(argv[#argv], '/tmp') end,
+    -- scripts and tests run headless, and their commands are meant for themselves
+    should_nest = function()
+      return vim.env.NVIM == nil
+        or vim.list_contains(vim.v.argv, '--headless')
+        or vim.list_contains(vim.v.argv, '--embed')
+    end,
+  },
 })
 
 -- disable some rtp plugins

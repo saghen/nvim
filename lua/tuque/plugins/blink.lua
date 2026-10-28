@@ -1,8 +1,8 @@
 require('tuque.utils').pack_add_dev({
-  'https://github.com/saghen/blink.lib',
+  { src = 'https://github.com/saghen/blink.lib', version = 'vim-async' },
   'https://github.com/saghen/blink.indent',
   'https://github.com/saghen/blink.pairs',
-  'https://github.com/saghen/blink.cmp',
+  { src = 'https://github.com/saghen/blink.cmp', version = 'in-process-lsp' },
 })
 
 require('blink.indent').setup({ dedent_scoped_filetypes = true })

@@ -24,9 +24,10 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- TODO: schedule to avoid ordering issues
-vim.schedule(
-  function() require('blink.cmp').lsp.enable({ 'blink_cmp_path', 'blink_cmp_buffer' }, false, { filetype = 'otto' }) end
-)
+vim.schedule(function()
+  local success, cmp = pcall(require, 'blink.cmp')
+  if success then cmp.lsp.enable({ 'blink_cmp_path', 'blink_cmp_buffer' }, false, { filetype = 'otto' }) end
+end)
 
 ---------------
 -- autocomplete
